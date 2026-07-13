@@ -129,6 +129,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         setVisibility("private");
         setSelectedLists(new Set());
       }
+      setInvitees(new Set());
     }
   }, [open, editing, defaultDate, profile?.default_visibility_list_id]);
 
@@ -147,6 +148,14 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
 
   function toggleList(id: string) {
     setSelectedLists((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleInvitee(id: string) {
+    setInvitees((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
