@@ -17,6 +17,7 @@ type Props = {
   userId: string;
   editing?: AgendaEvent | null;
   defaultDate?: Date;
+  defaultStart?: Date;
 };
 
 const EMOJI = ["🗓️", "🍸", "🎵", "💼", "🏃", "🍝", "🎬", "☕", "❤️", "✈️", "🎂", "📚"];
