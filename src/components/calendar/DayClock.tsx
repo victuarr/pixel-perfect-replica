@@ -46,7 +46,7 @@ function slicePath(hStart: number, hEnd: number): string {
 }
 
 
-export function DayClock({ date, events, onEventTap }: Props) {
+export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
