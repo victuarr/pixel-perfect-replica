@@ -20,6 +20,5 @@ export type CalendarView = "day" | "week" | "month" | "year";
 export const CATEGORY_COLORS = [
   { label: "Lavoro", value: "#3B7BF0" },
   { label: "Amici", value: "#12B48C" },
-  { label: "Techno", value: "#E0348B" },
   { label: "Personale", value: "#F59E3C" },
 ];

@@ -16,7 +16,7 @@ const SIZE = 300;
 const CENTER = SIZE / 2;
 const R_OUTER = 132;
 const R_INNER = 28; // small hub so slices reach near the center
-const R_LABEL = 78; // radius for the text label along the slice
+
 
 function hourToAngle(h: number): number {
   return (h / 24) * 360 - 90;
@@ -44,22 +44,6 @@ function slicePath(hStart: number, hEnd: number): string {
   ].join(" ");
 }
 
-/** Curved text path along the middle of the slice, kept upright. */
-function labelPath(hStart: number, hEnd: number): { d: string; flipped: boolean } {
-  const mid = (hStart + hEnd) / 2;
-  // On the bottom half (hours 6..18) the text would be upside-down: flip direction.
-  const flipped = mid > 6 && mid < 18;
-  const a0 = hourToAngle(flipped ? hEnd : hStart);
-  const a1 = hourToAngle(flipped ? hStart : hEnd);
-  const [x0, y0] = polar(a0, R_LABEL);
-  const [x1, y1] = polar(a1, R_LABEL);
-  const large = Math.abs(hEnd - hStart) > 12 ? 1 : 0;
-  const sweep = flipped ? 0 : 1;
-  return {
-    d: `M ${x0} ${y0} A ${R_LABEL} ${R_LABEL} 0 ${large} ${sweep} ${x1} ${y1}`,
-    flipped,
-  };
-}
 
 export function DayClock({ date, events, onEventTap }: Props) {
   const [now, setNow] = useState(new Date());
@@ -115,46 +99,22 @@ export function DayClock({ date, events, onEventTap }: Props) {
       />
 
       {/* Event slices */}
-      <defs>
-        {slices.map((s) => {
-          const { d } = labelPath(s.hs, s.he);
-          return <path key={`p-${s.id}`} id={`label-${s.id}`} d={d} />;
-        })}
-      </defs>
-      {slices.map((s) => {
-        const span = s.he - s.hs;
-        const label = s.icon ? `${s.icon} ${s.title}` : s.title;
-        // approx chars that fit along the arc
-        const maxChars = Math.max(2, Math.floor(span * 4.5));
-        const shown = label.length > maxChars ? label.slice(0, Math.max(1, maxChars - 1)) + "…" : label;
-        return (
-          <g
-            key={s.id}
-            onClick={() => onEventTap?.(s.id)}
-            style={{ cursor: onEventTap ? "pointer" : undefined }}
-          >
-            <path
-              d={slicePath(s.hs, s.he)}
-              fill={s.color}
-              stroke="var(--color-card)"
-              strokeWidth="1.5"
-              opacity="0.9"
-            />
-            {span >= 1 && (
-              <text
-                fontSize="10"
-                fontWeight="600"
-                fill="#fff"
-                style={{ pointerEvents: "none" }}
-              >
-                <textPath href={`#label-${s.id}`} startOffset="50%" textAnchor="middle">
-                  {shown}
-                </textPath>
-              </text>
-            )}
-          </g>
-        );
-      })}
+      {slices.map((s) => (
+        <g
+          key={s.id}
+          onClick={() => onEventTap?.(s.id)}
+          style={{ cursor: onEventTap ? "pointer" : undefined }}
+        >
+          <path
+            d={slicePath(s.hs, s.he)}
+            fill={s.color}
+            stroke="var(--color-card)"
+            strokeWidth="1.5"
+            opacity="0.9"
+          />
+        </g>
+      ))}
+
 
       {/* Hour ticks every 3h with labels */}
       {[0, 3, 6, 9, 12, 15, 18, 21].map((h) => {
