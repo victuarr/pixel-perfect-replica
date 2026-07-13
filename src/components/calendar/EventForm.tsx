@@ -42,6 +42,31 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
   const [color, setColor] = useState(CATEGORY_COLORS[0].value);
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [selectedLists, setSelectedLists] = useState<Set<string>>(new Set());
+  const [invitees, setInvitees] = useState<Set<string>>(new Set());
+
+  // Accepted friends (bi-directional accepted follows)
+  const { data: friends = [] } = useQuery({
+    queryKey: ["friends-for-invite", userId],
+    enabled: open,
+    queryFn: async () => {
+      const { data: follows, error } = await supabase
+        .from("follows")
+        .select("follower_id, followee_id, status")
+        .eq("status", "accepted");
+      if (error) throw error;
+      const ids = new Set<string>();
+      for (const f of follows ?? []) {
+        if (f.follower_id === userId) ids.add(f.followee_id);
+        if (f.followee_id === userId) ids.add(f.follower_id);
+      }
+      if (ids.size === 0) return [] as { id: string; username: string; display_name: string | null }[];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, username, display_name")
+        .in("id", Array.from(ids));
+      return profs ?? [];
+    },
+  });
 
   const { data: lists = [] } = useQuery({
     queryKey: ["lists", userId],
@@ -80,8 +105,11 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       setColor(editing.list_color);
       setVisibility(editing.visibility_type);
       // Load existing linked lists
+      // Load existing linked lists and invitees
       supabase.from("event_lists").select("list_id").eq("event_id", editing.id)
         .then(({ data }) => setSelectedLists(new Set((data ?? []).map((r) => r.list_id))));
+      supabase.from("event_invites").select("invitee_id").eq("event_id", editing.id)
+        .then(({ data }) => setInvitees(new Set((data ?? []).map((r) => r.invitee_id))));
     } else {
       const base = defaultDate ?? new Date();
       setQuick("");
