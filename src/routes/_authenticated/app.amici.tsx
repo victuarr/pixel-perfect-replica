@@ -133,6 +133,7 @@ function AmiciPage() {
             items={feed}
             hasFollowing={followingIds.length > 0}
             onSwitch={() => setTab("persone")}
+            onOpen={(e) => setOpenEvent(e)}
           />
         </div>
       ) : (
@@ -142,6 +143,14 @@ function AmiciPage() {
           incomingPending={incomingPending}
           outgoingPending={outgoingPending}
           onChanged={() => qc.invalidateQueries({ queryKey: ["follows", user.id] })}
+        />
+      )}
+
+      {openEvent && (
+        <ForeignEventDetail
+          event={openEvent}
+          userId={user.id}
+          onClose={() => setOpenEvent(null)}
         />
       )}
     </AppShell>
