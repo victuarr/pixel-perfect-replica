@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { CalendarDays, Users, Settings } from "lucide-react";
+import { CalendarDays, Users, User as UserIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatItalianDate } from "@/lib/date-utils";
@@ -54,7 +54,7 @@ export function AppShell({ children, subtitle, right }: Props) {
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
               aria-label="Profilo e impostazioni"
             >
-              <Settings className="h-4 w-4" />
+              <UserIcon className="h-4 w-4" />
             </Link>
           </div>
         </div>
