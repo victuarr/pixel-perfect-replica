@@ -41,9 +41,10 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("🗓️");
   const [place, setPlace] = useState("");
-  const [date, setDate] = useState(toInputDate(defaultDate ?? new Date()));
-  const [startTime, setStartTime] = useState("19:00");
-  const [endTime, setEndTime] = useState("");
+  const now = new Date();
+  const [date, setDate] = useState(toInputDate(defaultDate ?? now));
+  const [startTime, setStartTime] = useState(toInputTime(now));
+  const [endTime, setEndTime] = useState(toInputTime(addHours(now, 1)));
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(CATEGORY_COLORS[0].value);
   const [visibility, setVisibility] = useState<Visibility>("private");
