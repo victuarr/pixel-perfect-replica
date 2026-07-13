@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ReceivedInvites } from "@/components/ReceivedInvites";
 import { formatItalianDate, formatTime } from "@/lib/date-utils";
 import type { AgendaEvent } from "@/components/calendar/types";
 
@@ -122,12 +123,15 @@ function AmiciPage() {
       </div>
 
       {tab === "feed" ? (
-        <FeedTab
-          loading={feedLoading}
-          items={feed}
-          hasFollowing={followingIds.length > 0}
-          onSwitch={() => setTab("persone")}
-        />
+        <div className="flex flex-col gap-5">
+          <ReceivedInvites userId={user.id} />
+          <FeedTab
+            loading={feedLoading}
+            items={feed}
+            hasFollowing={followingIds.length > 0}
+            onSwitch={() => setTab("persone")}
+          />
+        </div>
       ) : (
         <PeopleTab
           userId={user.id}

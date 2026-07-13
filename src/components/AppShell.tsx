@@ -3,6 +3,7 @@ import { CalendarDays, Users, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatItalianDate } from "@/lib/date-utils";
+import { NotificationsBell } from "@/components/NotificationsBell";
 
 type Props = {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ export function AppShell({ children, subtitle, right }: Props) {
           </div>
           <div className="flex items-center gap-2">
             {right}
+            <NotificationsBell userId={userId} />
             <Link
               to="/app/profilo"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"

@@ -42,6 +42,31 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
   const [color, setColor] = useState(CATEGORY_COLORS[0].value);
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [selectedLists, setSelectedLists] = useState<Set<string>>(new Set());
+  const [invitees, setInvitees] = useState<Set<string>>(new Set());
+
+  // Accepted friends (bi-directional accepted follows)
+  const { data: friends = [] } = useQuery({
+    queryKey: ["friends-for-invite", userId],
+    enabled: open,
+    queryFn: async () => {
+      const { data: follows, error } = await supabase
+        .from("follows")
+        .select("follower_id, followee_id, status")
+        .eq("status", "accepted");
+      if (error) throw error;
+      const ids = new Set<string>();
+      for (const f of follows ?? []) {
+        if (f.follower_id === userId) ids.add(f.followee_id);
+        if (f.followee_id === userId) ids.add(f.follower_id);
+      }
+      if (ids.size === 0) return [] as { id: string; username: string; display_name: string | null }[];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, username, display_name")
+        .in("id", Array.from(ids));
+      return profs ?? [];
+    },
+  });
 
   const { data: lists = [] } = useQuery({
     queryKey: ["lists", userId],
@@ -80,8 +105,11 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       setColor(editing.list_color);
       setVisibility(editing.visibility_type);
       // Load existing linked lists
+      // Load existing linked lists and invitees
       supabase.from("event_lists").select("list_id").eq("event_id", editing.id)
         .then(({ data }) => setSelectedLists(new Set((data ?? []).map((r) => r.list_id))));
+      supabase.from("event_invites").select("invitee_id").eq("event_id", editing.id)
+        .then(({ data }) => setInvitees(new Set((data ?? []).map((r) => r.invitee_id))));
     } else {
       const base = defaultDate ?? new Date();
       setQuick("");
@@ -101,6 +129,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         setVisibility("private");
         setSelectedLists(new Set());
       }
+      setInvitees(new Set());
     }
   }, [open, editing, defaultDate, profile?.default_visibility_list_id]);
 
@@ -119,6 +148,14 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
 
   function toggleList(id: string) {
     setSelectedLists((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleInvitee(id: string) {
+    setInvitees((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
@@ -163,10 +200,31 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         const { error } = await supabase.from("event_lists").insert(rows);
         if (error) throw error;
       }
+
+      // Sync invitees
+      const { data: existingInvites } = await supabase
+        .from("event_invites")
+        .select("id, invitee_id")
+        .eq("event_id", eventId);
+      const existingIds = new Set((existingInvites ?? []).map((r) => r.invitee_id));
+      const toAdd = Array.from(invitees).filter((id) => !existingIds.has(id));
+      const toRemove = (existingInvites ?? []).filter((r) => !invitees.has(r.invitee_id));
+      if (toAdd.length) {
+        await supabase.from("event_invites").insert(
+          toAdd.map((invitee_id) => ({ event_id: eventId, invitee_id, invited_by: userId }))
+        );
+      }
+      if (toRemove.length) {
+        await supabase
+          .from("event_invites")
+          .delete()
+          .in("id", toRemove.map((r) => r.id));
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Impegno aggiornato" : "Impegno creato");
       qc.invalidateQueries({ queryKey: ["events", userId] });
+      qc.invalidateQueries({ queryKey: ["event-invites"] });
       onClose();
     },
     onError: (err) => {
@@ -338,6 +396,50 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
               </div>
             )}
           </div>
+
+          {/* Invita amici */}
+          <div className="rounded-2xl border border-border bg-card/50 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium">Invita amici</span>
+              <span className="text-[11px] text-muted-foreground">
+                {invitees.size > 0 ? `${invitees.size} selezionati` : "opzionale"}
+              </span>
+            </div>
+            {friends.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Nessun amico ancora. <Link to="/app/amici" onClick={onClose} className="font-medium text-foreground underline">Trova persone</Link>.
+              </p>
+            ) : (
+              <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
+                {friends.map((f) => {
+                  const on = invitees.has(f.id);
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => toggleInvitee(f.id)}
+                      className={
+                        "flex items-center gap-2 rounded-xl border p-2 text-left text-sm transition " +
+                        (on ? "border-primary bg-primary/10" : "border-border bg-background/60")
+                      }
+                    >
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-600 text-primary">
+                        {(f.display_name ?? f.username).slice(0, 2).toUpperCase()}
+                      </span>
+                      <span className="flex-1 truncate">
+                        {f.display_name || f.username}
+                        <span className="ml-1 text-xs text-muted-foreground">@{f.username}</span>
+                      </span>
+                      <span className={"flex h-5 w-5 items-center justify-center rounded-full border " + (on ? "border-primary bg-primary text-primary-foreground" : "border-muted")}>
+                        {on ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
 
           <textarea
             value={description}

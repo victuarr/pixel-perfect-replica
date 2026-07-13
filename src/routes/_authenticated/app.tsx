@@ -9,6 +9,7 @@ import { MonthView } from "@/components/calendar/MonthView";
 import { WeekView } from "@/components/calendar/WeekView";
 import { YearView } from "@/components/calendar/YearView";
 import { EventForm } from "@/components/calendar/EventForm";
+import { EventInvites } from "@/components/calendar/EventInvites";
 import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
 import {
   MESI,
@@ -208,7 +209,7 @@ function HomePage() {
               </li>
             )}
             {dayEvents.map((e) => (
-              <li key={e.id}>
+              <li key={e.id} className="flex flex-col gap-2">
                 <button
                   onClick={() => { setEditing(e); setFormOpen(true); }}
                   className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card hover:border-primary/40"
@@ -236,6 +237,11 @@ function HomePage() {
                   </span>
                   <VisibilityBadge v={e.visibility_type} />
                 </button>
+                <EventInvites
+                  eventId={e.id}
+                  isOwner={e.owner_id === user.id}
+                  currentUserId={user.id}
+                />
               </li>
             ))}
           </ul>

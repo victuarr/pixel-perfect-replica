@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_invites: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          invited_by: string
+          invitee_id: string
+          status: Database["public"]["Enums"]["invite_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          invited_by: string
+          invitee_id: string
+          status?: Database["public"]["Enums"]["invite_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          invited_by?: string
+          invitee_id?: string
+          status?: Database["public"]["Enums"]["invite_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_lists: {
         Row: {
           created_at: string
@@ -200,6 +238,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          data: Json
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          read_at: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -252,11 +326,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_event_owner: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       event_visibility: "public" | "lists" | "private"
       follow_status: "pending" | "accepted"
+      invite_status: "pending" | "going" | "maybe" | "declined"
+      notification_type:
+        | "follow_request"
+        | "follow_accepted"
+        | "event_invite"
+        | "event_rsvp"
       presentation_view: "future" | "past"
       profile_privacy: "open" | "approval"
     }
@@ -388,6 +471,13 @@ export const Constants = {
     Enums: {
       event_visibility: ["public", "lists", "private"],
       follow_status: ["pending", "accepted"],
+      invite_status: ["pending", "going", "maybe", "declined"],
+      notification_type: [
+        "follow_request",
+        "follow_accepted",
+        "event_invite",
+        "event_rsvp",
+      ],
       presentation_view: ["future", "past"],
       profile_privacy: ["open", "approval"],
     },
