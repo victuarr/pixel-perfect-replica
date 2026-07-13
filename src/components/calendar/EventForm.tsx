@@ -200,10 +200,31 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         const { error } = await supabase.from("event_lists").insert(rows);
         if (error) throw error;
       }
+
+      // Sync invitees
+      const { data: existingInvites } = await supabase
+        .from("event_invites")
+        .select("id, invitee_id")
+        .eq("event_id", eventId);
+      const existingIds = new Set((existingInvites ?? []).map((r) => r.invitee_id));
+      const toAdd = Array.from(invitees).filter((id) => !existingIds.has(id));
+      const toRemove = (existingInvites ?? []).filter((r) => !invitees.has(r.invitee_id));
+      if (toAdd.length) {
+        await supabase.from("event_invites").insert(
+          toAdd.map((invitee_id) => ({ event_id: eventId, invitee_id, invited_by: userId }))
+        );
+      }
+      if (toRemove.length) {
+        await supabase
+          .from("event_invites")
+          .delete()
+          .in("id", toRemove.map((r) => r.id));
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Impegno aggiornato" : "Impegno creato");
       qc.invalidateQueries({ queryKey: ["events", userId] });
+      qc.invalidateQueries({ queryKey: ["event-invites"] });
       onClose();
     },
     onError: (err) => {
