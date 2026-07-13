@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, ChevronRight, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CATEGORY_COLORS } from "@/components/calendar/types";
+import { supabaseErrorMessage } from "@/lib/error-message";
 
 export const Route = createFileRoute("/_authenticated/app/liste")({
   component: ListePage,
@@ -64,7 +65,7 @@ function ListePage() {
       qc.invalidateQueries({ queryKey: ["lists-with-counts", user.id] });
       qc.invalidateQueries({ queryKey: ["lists", user.id] });
     },
-    onError: (e) => toast.error(e?.message ?? e?.error_description ?? JSON.stringify(e)),
+    onError: (e) => toast.error(supabaseErrorMessage(e)),
   });
 
   return (

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CATEGORY_COLORS, type AgendaEvent } from "./types";
 import { parseNL } from "@/lib/nl-parse";
 import { toLocalISOString } from "@/lib/date-utils";
+import { supabaseErrorMessage } from "@/lib/error-message";
 
 type Visibility = "public" | "lists" | "private";
 
@@ -231,7 +232,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       onClose();
     },
     onError: (err) => {
-      toast.error(err?.message ?? err?.error_description ?? JSON.stringify(err));
+      toast.error(supabaseErrorMessage(err));
     },
   });
 
@@ -265,7 +266,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       }
       onClose();
     },
-    onError: (e) => toast.error(e?.message ?? e?.error_description ?? JSON.stringify(e)),
+    onError: (e) => toast.error(supabaseErrorMessage(e)),
   });
 
   const isJoinedCopy = !!editing?.origin_id;
