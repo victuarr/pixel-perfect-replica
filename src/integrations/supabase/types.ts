@@ -432,6 +432,10 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
+      can_view_profile: {
+        Args: { _profile_id: string; _viewer_id: string }
+        Returns: boolean
+      }
       event_going_count: { Args: { _event_id: string }; Returns: number }
       event_visible_via_list: {
         Args: { _event_id: string; _user_id: string }
