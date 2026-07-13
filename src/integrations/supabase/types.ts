@@ -433,8 +433,24 @@ export type Database = {
         Returns: boolean
       }
       event_going_count: { Args: { _event_id: string }; Returns: number }
+      event_visible_via_list: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_event_invitee: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_event_owner: {
         Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_list_member: {
+        Args: { _list_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_list_owner: {
+        Args: { _list_id: string; _user_id: string }
         Returns: boolean
       }
       join_event: {
