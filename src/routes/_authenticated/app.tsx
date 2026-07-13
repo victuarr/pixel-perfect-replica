@@ -258,12 +258,26 @@ function HomePage() {
                     </span>
                   </span>
                   <VisibilityBadge v={e.visibility_type} />
+                  {e.reminder_minutes != null && (
+                    <ReminderBadge minutes={e.reminder_minutes} />
+                  )}
                 </button>
                 <EventInvites
                   eventId={e.id}
                   isOwner={e.owner_id === user.id}
                   currentUserId={user.id}
                 />
+                <div className="flex items-center justify-between">
+                  <EventReactions eventId={e.id} currentUserId={user.id} />
+                  <button
+                    onClick={() => downloadIcs(`evento-${e.id}.ics`, buildEventIcs(e))}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+                    aria-label="Esporta evento in ICS"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                </div>
+                <EventComments eventId={e.id} currentUserId={user.id} />
               </li>
             ))}
           </ul>
