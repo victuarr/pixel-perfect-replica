@@ -231,7 +231,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       onClose();
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : "Errore");
+      toast.error(err?.message ?? err?.error_description ?? JSON.stringify(err));
     },
   });
 
@@ -265,7 +265,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       }
       onClose();
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Errore"),
+    onError: (e) => toast.error(e?.message ?? e?.error_description ?? JSON.stringify(e)),
   });
 
   const isJoinedCopy = !!editing?.origin_id;

@@ -64,7 +64,7 @@ function ListePage() {
       qc.invalidateQueries({ queryKey: ["lists-with-counts", user.id] });
       qc.invalidateQueries({ queryKey: ["lists", user.id] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Errore"),
+    onError: (e) => toast.error(e?.message ?? e?.error_description ?? JSON.stringify(e)),
   });
 
   return (
