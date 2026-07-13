@@ -34,13 +34,16 @@ export function MonthView({ cursor, events, onSelectDay }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex h-[calc(100svh-15rem)] min-h-[26rem] flex-col gap-2">
       <div className="grid grid-cols-7 px-1 text-center text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {GIORNI_SHORT.map((g, i) => (
           <span key={i}>{g}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
+      <div
+        className="grid flex-1 grid-cols-7 gap-1.5"
+        style={{ gridTemplateRows: `repeat(${total / 7}, minmax(0, 1fr))` }}
+      >
         {Array.from({ length: total }, (_, i) => {
           const d = addDays(gridStart, i);
           const inMonth = isSameMonth(d, cursor);
@@ -53,7 +56,7 @@ export function MonthView({ cursor, events, onSelectDay }: Props) {
               key={i}
               onClick={() => onSelectDay(d)}
               className={
-                "flex aspect-square flex-col items-center justify-between rounded-xl p-1.5 text-sm transition " +
+                "flex h-full flex-col items-center justify-between rounded-xl p-1.5 text-sm transition " +
                 (isToday
                   ? "bg-primary text-primary-foreground shadow-elevated"
                   : inMonth

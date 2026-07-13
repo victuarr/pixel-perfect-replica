@@ -42,7 +42,7 @@ type Tab = "feed" | "persone";
 function AmiciPage() {
   const { user } = Route.useRouteContext();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("feed");
+  const [tab, setTab] = useState<Tab>("persone");
 
   // Everyone I have a follow relation with (either direction)
   const { data: follows = [] } = useQuery({

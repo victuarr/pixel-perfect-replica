@@ -53,33 +53,33 @@
 :root {
   --radius: 0.875rem;
 
-  /* Surfaces */
-  --background: #E7E2F0;
-  --foreground: #221B31;
-  --card: #FCFBFE;
-  --card-foreground: #221B31;
-  --popover: #FCFBFE;
-  --popover-foreground: #221B31;
+  /* Surfaces — warm off-white with a whisper of pink */
+  --background: #FBF3F3;
+  --foreground: #2A1D22;
+  --card: #FFFDFD;
+  --card-foreground: #2A1D22;
+  --popover: #FFFDFD;
+  --popover-foreground: #2A1D22;
 
   /* Graphite = primary action + active states */
-  --primary: #332C42;
-  --primary-foreground: #FCFBFE;
+  --primary: #3A2A31;
+  --primary-foreground: #FFFDFD;
 
-  --secondary: #FCFBFE;
-  --secondary-foreground: #221B31;
+  --secondary: #FFFDFD;
+  --secondary-foreground: #2A1D22;
 
-  --muted: #DED8EA;
-  --muted-foreground: #6C6580;
+  --muted: #F3E6E8;
+  --muted-foreground: #7A6167;
 
-  --accent: #DED8EA;
-  --accent-foreground: #332C42;
+  --accent: #F3E6E8;
+  --accent-foreground: #3A2A31;
 
   --destructive: #C0384E;
-  --destructive-foreground: #FCFBFE;
+  --destructive-foreground: #FFFDFD;
 
-  --border: #D8D2E6;
-  --input: #D8D2E6;
-  --ring: #332C42;
+  --border: #EBDBDE;
+  --input: #EBDBDE;
+  --ring: #3A2A31;
 
   /* Category colors — reserved for events */
   --cat-work: #3B7BF0;
