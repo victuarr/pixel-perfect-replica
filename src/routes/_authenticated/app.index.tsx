@@ -30,7 +30,7 @@ import {
   startOfWeek,
 } from "@/lib/date-utils";
 
-export const Route = createFileRoute("/_authenticated/app")({
+export const Route = createFileRoute("/_authenticated/app/")({
   component: HomePage,
 });
 
