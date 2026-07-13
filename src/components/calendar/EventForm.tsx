@@ -29,6 +29,11 @@ function toInputTime(d: Date): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+function addHours(d: Date, n: number): Date {
+  const x = new Date(d);
+  x.setHours(x.getHours() + n);
+  return x;
+}
 
 export function EventForm({ open, onClose, userId, editing, defaultDate }: Props) {
   const qc = useQueryClient();
@@ -36,9 +41,10 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("🗓️");
   const [place, setPlace] = useState("");
-  const [date, setDate] = useState(toInputDate(defaultDate ?? new Date()));
-  const [startTime, setStartTime] = useState("19:00");
-  const [endTime, setEndTime] = useState("");
+  const now = new Date();
+  const [date, setDate] = useState(toInputDate(defaultDate ?? now));
+  const [startTime, setStartTime] = useState(toInputTime(now));
+  const [endTime, setEndTime] = useState(toInputTime(addHours(now, 1)));
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(CATEGORY_COLORS[0].value);
   const [visibility, setVisibility] = useState<Visibility>("private");
@@ -114,13 +120,14 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         .then(({ data }) => setInvitees(new Set((data ?? []).map((r) => r.invitee_id))));
     } else {
       const base = defaultDate ?? new Date();
+      const now = new Date();
       setQuick("");
       setTitle("");
       setIcon("🗓️");
       setPlace("");
       setDate(toInputDate(base));
-      setStartTime("19:00");
-      setEndTime("");
+      setStartTime(toInputTime(now));
+      setEndTime(toInputTime(addHours(now, 1)));
       setDescription("");
       setColor(CATEGORY_COLORS[0].value);
       // Preselect default from profile
@@ -143,6 +150,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
     if (r.when) {
       setDate(toInputDate(r.when));
       setStartTime(toInputTime(r.when));
+      setEndTime(toInputTime(addHours(r.when, 1)));
     }
     if (!r.title && !r.place && !r.when) {
       toast.info("Non ho capito. Prova ad esempio: “domani 21 aperitivo al Barrio”.");
