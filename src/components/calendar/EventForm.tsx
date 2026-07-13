@@ -150,6 +150,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
     if (r.when) {
       setDate(toInputDate(r.when));
       setStartTime(toInputTime(r.when));
+      setEndTime(toInputTime(addHours(r.when, 1)));
     }
     if (!r.title && !r.place && !r.when) {
       toast.info("Non ho capito. Prova ad esempio: “domani 21 aperitivo al Barrio”.");
