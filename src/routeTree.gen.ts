@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppProfiloRouteImport } from './routes/_authenticated/app.profilo'
+import { Route as AuthenticatedAppListeRouteImport } from './routes/_authenticated/app.liste'
 import { Route as AuthenticatedAppAmiciRouteImport } from './routes/_authenticated/app.amici'
+import { Route as AuthenticatedAppListeListIdRouteImport } from './routes/_authenticated/app.liste.$listId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -40,25 +42,40 @@ const AuthenticatedAppProfiloRoute = AuthenticatedAppProfiloRouteImport.update({
   path: '/profilo',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppListeRoute = AuthenticatedAppListeRouteImport.update({
+  id: '/liste',
+  path: '/liste',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppAmiciRoute = AuthenticatedAppAmiciRouteImport.update({
   id: '/amici',
   path: '/amici',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppListeListIdRoute =
+  AuthenticatedAppListeListIdRouteImport.update({
+    id: '/$listId',
+    path: '/$listId',
+    getParentRoute: () => AuthenticatedAppListeRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/amici': typeof AuthenticatedAppAmiciRoute
+  '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/amici': typeof AuthenticatedAppAmiciRoute
+  '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -67,13 +84,29 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/amici': typeof AuthenticatedAppAmiciRoute
+  '/_authenticated/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/_authenticated/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/_authenticated/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app' | '/app/amici' | '/app/profilo'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/app/amici'
+    | '/app/liste'
+    | '/app/profilo'
+    | '/app/liste/$listId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/app/amici' | '/app/profilo'
+  to:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/app/amici'
+    | '/app/liste'
+    | '/app/profilo'
+    | '/app/liste/$listId'
   id:
     | '__root__'
     | '/'
@@ -81,7 +114,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/app/amici'
+    | '/_authenticated/app/liste'
     | '/_authenticated/app/profilo'
+    | '/_authenticated/app/liste/$listId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -127,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfiloRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/liste': {
+      id: '/_authenticated/app/liste'
+      path: '/liste'
+      fullPath: '/app/liste'
+      preLoaderRoute: typeof AuthenticatedAppListeRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/amici': {
       id: '/_authenticated/app/amici'
       path: '/amici'
@@ -134,16 +176,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAmiciRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/liste/$listId': {
+      id: '/_authenticated/app/liste/$listId'
+      path: '/$listId'
+      fullPath: '/app/liste/$listId'
+      preLoaderRoute: typeof AuthenticatedAppListeListIdRouteImport
+      parentRoute: typeof AuthenticatedAppListeRoute
+    }
   }
 }
 
+interface AuthenticatedAppListeRouteChildren {
+  AuthenticatedAppListeListIdRoute: typeof AuthenticatedAppListeListIdRoute
+}
+
+const AuthenticatedAppListeRouteChildren: AuthenticatedAppListeRouteChildren = {
+  AuthenticatedAppListeListIdRoute: AuthenticatedAppListeListIdRoute,
+}
+
+const AuthenticatedAppListeRouteWithChildren =
+  AuthenticatedAppListeRoute._addFileChildren(
+    AuthenticatedAppListeRouteChildren,
+  )
+
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAmiciRoute: typeof AuthenticatedAppAmiciRoute
+  AuthenticatedAppListeRoute: typeof AuthenticatedAppListeRouteWithChildren
   AuthenticatedAppProfiloRoute: typeof AuthenticatedAppProfiloRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAmiciRoute: AuthenticatedAppAmiciRoute,
+  AuthenticatedAppListeRoute: AuthenticatedAppListeRouteWithChildren,
   AuthenticatedAppProfiloRoute: AuthenticatedAppProfiloRoute,
 }
 
