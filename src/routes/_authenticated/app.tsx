@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, ChevronLeft, ChevronRight, MapPin, Lock, Users, Globe2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Plus, ChevronLeft, ChevronRight, MapPin, Lock, Users, Globe2, Clock, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { DayClock } from "@/components/calendar/DayClock";
@@ -10,6 +11,10 @@ import { WeekView } from "@/components/calendar/WeekView";
 import { YearView } from "@/components/calendar/YearView";
 import { EventForm } from "@/components/calendar/EventForm";
 import { EventInvites } from "@/components/calendar/EventInvites";
+import { EventComments } from "@/components/calendar/EventComments";
+import { EventReactions } from "@/components/calendar/EventReactions";
+import { exportCalendarIcs } from "@/lib/calendar.functions";
+import { buildEventIcs, downloadIcs } from "@/lib/ics";
 import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
 import {
   MESI,
@@ -42,6 +47,7 @@ function HomePage() {
   const [selectedDay, setSelectedDay] = useState<Date>(() => startOfDay(new Date()));
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AgendaEvent | null>(null);
+  const exportIcs = useServerFn(exportCalendarIcs);
 
   // Fetch a window that covers the current view
   const { from, to } = useMemo(() => {
@@ -143,12 +149,28 @@ function HomePage() {
         >
           {periodLabel()}
         </button>
-        <button
-          onClick={() => shift(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              try {
+                const ics = await exportIcs({ data: { from: from.toISOString(), to: to.toISOString() } });
+                downloadIcs("calendario.ics", ics);
+              } catch (e) {
+                console.error("Export ICS error", e);
+              }
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+            aria-label="Esporta periodo in ICS"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => shift(1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Views */}
@@ -236,12 +258,26 @@ function HomePage() {
                     </span>
                   </span>
                   <VisibilityBadge v={e.visibility_type} />
+                  {e.reminder_minutes != null && (
+                    <ReminderBadge minutes={e.reminder_minutes} />
+                  )}
                 </button>
                 <EventInvites
                   eventId={e.id}
                   isOwner={e.owner_id === user.id}
                   currentUserId={user.id}
                 />
+                <div className="flex items-center justify-between">
+                  <EventReactions eventId={e.id} currentUserId={user.id} />
+                  <button
+                    onClick={() => downloadIcs(`evento-${e.id}.ics`, buildEventIcs(e))}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+                    aria-label="Esporta evento in ICS"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                </div>
+                <EventComments eventId={e.id} currentUserId={user.id} />
               </li>
             ))}
           </ul>
@@ -278,6 +314,19 @@ function VisibilityBadge({ v }: { v: AgendaEvent["visibility_type"] }) {
   return (
     <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
       {icon} {label}
+    </span>
+  );
+}
+
+function ReminderBadge({ minutes }: { minutes: number }) {
+  let label: string;
+  if (minutes < 60) label = `${minutes}m prima`;
+  else if (minutes === 60) label = "1h prima";
+  else if (minutes === 1440) label = "1g prima";
+  else label = `${Math.floor(minutes / 60)}h prima`;
+  return (
+    <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <Clock className="h-3 w-3" /> {label}
     </span>
   );
 }

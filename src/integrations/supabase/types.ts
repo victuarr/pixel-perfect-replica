@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_comments: {
+        Row: {
+          body: string
+          created_at: string
+          event_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          event_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_invites: {
         Row: {
           created_at: string
@@ -85,6 +120,70 @@ export type Database = {
           },
         ]
       }
+      event_reactions: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reactions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_reminders: {
+        Row: {
+          event_id: string
+          id: string
+          scheduled_at: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          scheduled_at: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          scheduled_at?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -96,6 +195,7 @@ export type Database = {
           origin_id: string | null
           owner_id: string
           place: string | null
+          reminder_minutes: number | null
           starts_at: string
           title: string
           updated_at: string
@@ -111,6 +211,7 @@ export type Database = {
           origin_id?: string | null
           owner_id: string
           place?: string | null
+          reminder_minutes?: number | null
           starts_at: string
           title: string
           updated_at?: string
@@ -126,6 +227,7 @@ export type Database = {
           origin_id?: string | null
           owner_id?: string
           place?: string | null
+          reminder_minutes?: number | null
           starts_at?: string
           title?: string
           updated_at?: string
@@ -326,6 +428,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_event: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_event_owner: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -340,6 +446,9 @@ export type Database = {
         | "follow_accepted"
         | "event_invite"
         | "event_rsvp"
+        | "event_reminder"
+        | "event_comment"
+        | "event_reaction"
       presentation_view: "future" | "past"
       profile_privacy: "open" | "approval"
     }
@@ -477,6 +586,9 @@ export const Constants = {
         "follow_accepted",
         "event_invite",
         "event_rsvp",
+        "event_reminder",
+        "event_comment",
+        "event_reaction",
       ],
       presentation_view: ["future", "past"],
       profile_privacy: ["open", "approval"],

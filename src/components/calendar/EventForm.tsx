@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Sparkles, Trash2, Loader2, Globe2, Lock, Users } from "lucide-react";
+import { X, Sparkles, Trash2, Loader2, Globe2, Lock, Users, Clock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [selectedLists, setSelectedLists] = useState<Set<string>>(new Set());
   const [invitees, setInvitees] = useState<Set<string>>(new Set());
+  const [reminderMinutes, setReminderMinutes] = useState<number | null>(null);
 
   // Accepted friends (bi-directional accepted follows)
   const { data: friends = [] } = useQuery({
@@ -104,7 +105,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       setDescription(editing.description ?? "");
       setColor(editing.list_color);
       setVisibility(editing.visibility_type);
-      // Load existing linked lists
+      setReminderMinutes(editing.reminder_minutes);
       // Load existing linked lists and invitees
       supabase.from("event_lists").select("list_id").eq("event_id", editing.id)
         .then(({ data }) => setSelectedLists(new Set((data ?? []).map((r) => r.list_id))));
@@ -130,6 +131,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         setSelectedLists(new Set());
       }
       setInvitees(new Set());
+      setReminderMinutes(null);
     }
   }, [open, editing, defaultDate, profile?.default_visibility_list_id]);
 
@@ -180,6 +182,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         description: description.trim() || null,
         list_color: color,
         visibility_type: visibility,
+        reminder_minutes: reminderMinutes,
       };
 
       let eventId: string;
@@ -395,6 +398,29 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
                 )}
               </div>
             )}
+          </div>
+
+          {/* Promemoria */}
+          <div className="rounded-2xl border border-border bg-card/50 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                <Clock className="h-4 w-4 text-muted-foreground" /> Promemoria
+              </span>
+            </div>
+            <select
+              value={reminderMinutes ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setReminderMinutes(v === "" ? null : Number(v));
+              }}
+              className="h-11 w-full rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+            >
+              <option value="">Nessun promemoria</option>
+              <option value={15}>15 minuti prima</option>
+              <option value={30}>30 minuti prima</option>
+              <option value={60}>1 ora prima</option>
+              <option value={1440}>1 giorno prima</option>
+            </select>
           </div>
 
           {/* Invita amici */}
