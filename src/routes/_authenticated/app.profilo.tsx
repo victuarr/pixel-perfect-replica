@@ -63,9 +63,76 @@ function ProfiloPage() {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <ProfileEditor profile={profile} email={user.email ?? ""} />
+        <>
+          <ProfileEditor profile={profile} email={user.email ?? ""} />
+          <PublicEventsSection userId={user.id} />
+        </>
       )}
     </AppShell>
+  );
+}
+
+function PublicEventsSection({ userId }: { userId: string }) {
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ["profile-public-events", userId],
+    queryFn: async () => {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("events")
+        .select("id, title, icon, place, starts_at, list_color")
+        .eq("owner_id", userId)
+        .eq("visibility_type", "public")
+        .is("origin_id", null)
+        .gte("starts_at", nowIso)
+        .order("starts_at", { ascending: true })
+        .limit(50);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  return (
+    <section className="mt-6 flex flex-col gap-3">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-base font-600">I miei eventi pubblici</h2>
+        <span className="text-xs text-muted-foreground">Visibili a tuttə</span>
+      </div>
+      {isLoading ? (
+        <div className="flex h-20 items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        </div>
+      ) : events.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-5 text-center text-sm text-muted-foreground">
+          Non hai ancora condiviso eventi pubblici.
+        </div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {events.map((e) => {
+            const d = new Date(e.starts_at);
+            return (
+              <li
+                key={e.id}
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card"
+              >
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
+                  style={{ background: (e.list_color ?? "hsl(var(--primary))") + "22" }}
+                >
+                  <span>{e.icon ?? "📅"}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{e.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {d.toLocaleString("it-IT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    {e.place ? ` · ${e.place}` : ""}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 
