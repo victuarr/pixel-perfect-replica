@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ReceivedInvites } from "@/components/ReceivedInvites";
+import { ForeignEventDetail } from "@/components/calendar/ForeignEventDetail";
+import { GoingCount } from "@/components/calendar/GoingCount";
 import { formatItalianDate, formatTime } from "@/lib/date-utils";
 import type { AgendaEvent } from "@/components/calendar/types";
 
