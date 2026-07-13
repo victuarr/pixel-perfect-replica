@@ -14,7 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lists: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          default_visibility_list_id: string | null
+          display_name: string | null
+          id: string
+          presentation_view: Database["public"]["Enums"]["presentation_view"]
+          profile_privacy: Database["public"]["Enums"]["profile_privacy"]
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          default_visibility_list_id?: string | null
+          display_name?: string | null
+          id: string
+          presentation_view?: Database["public"]["Enums"]["presentation_view"]
+          profile_privacy?: Database["public"]["Enums"]["profile_privacy"]
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          default_visibility_list_id?: string | null
+          display_name?: string | null
+          id?: string
+          presentation_view?: Database["public"]["Enums"]["presentation_view"]
+          profile_privacy?: Database["public"]["Enums"]["profile_privacy"]
+          updated_at?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_default_visibility_list_id_fkey"
+            columns: ["default_visibility_list_id"]
+            isOneToOne: false
+            referencedRelation: "lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +96,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      presentation_view: "future" | "past"
+      profile_privacy: "open" | "approval"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +224,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      presentation_view: ["future", "past"],
+      profile_privacy: ["open", "approval"],
+    },
   },
 } as const
