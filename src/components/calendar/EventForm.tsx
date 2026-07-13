@@ -29,6 +29,11 @@ function toInputTime(d: Date): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+function addHours(d: Date, n: number): Date {
+  const x = new Date(d);
+  x.setHours(x.getHours() + n);
+  return x;
+}
 
 export function EventForm({ open, onClose, userId, editing, defaultDate }: Props) {
   const qc = useQueryClient();
