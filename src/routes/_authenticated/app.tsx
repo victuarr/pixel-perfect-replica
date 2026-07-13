@@ -1,280 +1,262 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Plus, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { LogOut, Check, Loader2, User as UserIcon } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { DayClock } from "@/components/calendar/DayClock";
+import { MonthView } from "@/components/calendar/MonthView";
+import { WeekView } from "@/components/calendar/WeekView";
+import { YearView } from "@/components/calendar/YearView";
+import { EventForm } from "@/components/calendar/EventForm";
+import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
+import {
+  MESI,
+  addDays,
+  addMonths,
+  addYears,
+  endOfDay,
+  formatTime,
+  isSameDay,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from "@/lib/date-utils";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  component: AppHome,
+  component: HomePage,
 });
 
-type Profile = {
-  id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  profile_privacy: "open" | "approval";
-  presentation_view: "future" | "past";
-};
+const VIEWS: { value: CalendarView; label: string }[] = [
+  { value: "day", label: "Giorno" },
+  { value: "week", label: "Settimana" },
+  { value: "month", label: "Mese" },
+  { value: "year", label: "Anno" },
+];
 
-function AppHome() {
+function HomePage() {
   const { user } = Route.useRouteContext();
-  const router = useRouter();
-  const qc = useQueryClient();
+  const [view, setView] = useState<CalendarView>("month");
+  const [cursor, setCursor] = useState<Date>(() => new Date());
+  const [selectedDay, setSelectedDay] = useState<Date>(() => startOfDay(new Date()));
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<AgendaEvent | null>(null);
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile", user.id],
+  // Fetch a window that covers the current view
+  const { from, to } = useMemo(() => {
+    if (view === "year") {
+      return {
+        from: new Date(cursor.getFullYear(), 0, 1),
+        to: new Date(cursor.getFullYear(), 11, 31, 23, 59, 59),
+      };
+    }
+    if (view === "week") {
+      const s = startOfWeek(cursor);
+      return { from: s, to: endOfDay(addDays(s, 6)) };
+    }
+    if (view === "day") {
+      return { from: startOfDay(selectedDay), to: endOfDay(selectedDay) };
+    }
+    const s = startOfMonth(cursor);
+    // Grab a wider window so month grid dots include leading/trailing days too
+    return {
+      from: addDays(s, -7),
+      to: endOfDay(addDays(s, 42)),
+    };
+  }, [view, cursor, selectedDay]);
+
+  const { data: events = [] } = useQuery({
+    queryKey: ["events", user.id, view, from.toISOString(), to.toISOString()],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("events")
         .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+        .eq("owner_id", user.id)
+        .gte("starts_at", from.toISOString())
+        .lte("starts_at", to.toISOString())
+        .order("starts_at", { ascending: true });
       if (error) throw error;
-      return data as Profile | null;
+      return (data ?? []) as AgendaEvent[];
     },
   });
 
-  async function handleSignOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    router.navigate({ to: "/auth", replace: true });
+  const dayEvents = useMemo(
+    () => events.filter((e) => isSameDay(new Date(e.starts_at), selectedDay))
+      .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
+    [events, selectedDay]
+  );
+
+  function shift(dir: -1 | 1) {
+    if (view === "day") setSelectedDay((d) => addDays(d, dir));
+    else if (view === "week") setCursor((d) => addDays(d, dir * 7));
+    else if (view === "month") setCursor((d) => addMonths(d, dir));
+    else setCursor((d) => addYears(d, dir));
+  }
+
+  function periodLabel() {
+    if (view === "day")
+      return `${selectedDay.getDate()} ${MESI[selectedDay.getMonth()]}`;
+    if (view === "week") {
+      const s = startOfWeek(cursor);
+      const e = addDays(s, 6);
+      return `${s.getDate()} ${MESI[s.getMonth()].slice(0, 3)} – ${e.getDate()} ${MESI[e.getMonth()].slice(0, 3)}`;
+    }
+    if (view === "month") return `${MESI[cursor.getMonth()]} ${cursor.getFullYear()}`;
+    return `${cursor.getFullYear()}`;
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              Agenda
-            </p>
-            <p className="mt-0.5 font-display text-lg font-700 tracking-tight">
-              Il mio profilo
-            </p>
-          </div>
+    <AppShell>
+      {/* View switcher */}
+      <div className="mb-4 grid grid-cols-4 rounded-full border border-border bg-card p-1 text-xs">
+        {VIEWS.map((v) => (
           <button
-            onClick={handleSignOut}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
+            key={v.value}
+            onClick={() => setView(v.value)}
+            className={
+              "h-8 rounded-full font-medium transition-colors " +
+              (view === v.value
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
           >
-            <LogOut className="h-3.5 w-3.5" />
-            Esci
+            {v.label}
           </button>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-md px-5 py-6">
-        {isLoading || !profile ? (
-          <div className="flex h-40 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <ProfileEditor profile={profile} email={user.email ?? ""} />
-        )}
-      </main>
-    </div>
-  );
-}
-
-function ProfileEditor({ profile, email }: { profile: Profile; email: string }) {
-  const qc = useQueryClient();
-  const [username, setUsername] = useState(profile.username);
-  const [displayName, setDisplayName] = useState(profile.display_name ?? "");
-  const [bio, setBio] = useState(profile.bio ?? "");
-  const [privacy, setPrivacy] = useState(profile.profile_privacy);
-  const [presentation, setPresentation] = useState(profile.presentation_view);
-
-  useEffect(() => {
-    setUsername(profile.username);
-    setDisplayName(profile.display_name ?? "");
-    setBio(profile.bio ?? "");
-    setPrivacy(profile.profile_privacy);
-    setPresentation(profile.presentation_view);
-  }, [profile]);
-
-  const save = useMutation({
-    mutationFn: async () => {
-      if (!/^[a-z0-9_]{3,30}$/.test(username)) {
-        throw new Error(
-          "Username: 3-30 caratteri, minuscole, numeri o underscore.",
-        );
-      }
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          username,
-          display_name: displayName.trim() || null,
-          bio: bio.trim() || null,
-          profile_privacy: privacy,
-          presentation_view: presentation,
-        })
-        .eq("id", profile.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Profilo aggiornato");
-      qc.invalidateQueries({ queryKey: ["profile", profile.id] });
-    },
-    onError: (err) => {
-      const msg = err instanceof Error ? err.message : "Errore";
-      toast.error(msg.includes("duplicate") ? "Username già in uso" : msg);
-    },
-  });
-
-  return (
-    <div className="flex flex-col gap-5">
-      {/* Identity card */}
-      <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-          <UserIcon className="h-7 w-7" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-lg font-700 leading-tight">
-            {displayName || username}
-          </p>
-          <p className="truncate text-sm text-muted-foreground">@{username}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground/80">{email}</p>
-        </div>
+        ))}
       </div>
 
-      {/* Form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          save.mutate();
-        }}
-        className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 shadow-card"
-      >
-        <Field label="Username" hint="minuscole, numeri, underscore">
-          <div className="flex items-center rounded-xl border border-input bg-background/50 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20">
-            <span className="pl-3 text-muted-foreground">@</span>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase())}
-              className="h-11 flex-1 bg-transparent px-2 text-base outline-none"
-              maxLength={30}
-              required
+      {/* Period nav */}
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={() => shift(-1)}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => {
+            setCursor(new Date());
+            setSelectedDay(startOfDay(new Date()));
+          }}
+          className="rounded-full px-3 py-1 font-display text-base font-700 tracking-tight hover:bg-accent"
+        >
+          {periodLabel()}
+        </button>
+        <button
+          onClick={() => shift(1)}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Views */}
+      {view === "month" && (
+        <MonthView
+          cursor={cursor}
+          events={events}
+          onSelectDay={(d) => {
+            setSelectedDay(d);
+            setView("day");
+          }}
+        />
+      )}
+
+      {view === "week" && (
+        <WeekView
+          cursor={cursor}
+          events={events}
+          onSelectDay={(d) => {
+            setSelectedDay(d);
+            setView("day");
+          }}
+          onEventTap={(id) => {
+            const e = events.find((ev) => ev.id === id);
+            if (e) { setEditing(e); setFormOpen(true); }
+          }}
+        />
+      )}
+
+      {view === "year" && (
+        <YearView
+          cursor={cursor}
+          events={events}
+          onSelectMonth={(d) => {
+            setCursor(d);
+            setView("month");
+          }}
+        />
+      )}
+
+      {view === "day" && (
+        <div className="flex flex-col gap-5">
+          <div className="rounded-3xl bg-card p-4 shadow-card">
+            <DayClock
+              date={selectedDay}
+              events={dayEvents}
+              onEventTap={(id) => {
+                const e = dayEvents.find((ev) => ev.id === id);
+                if (e) { setEditing(e); setFormOpen(true); }
+              }}
             />
           </div>
-        </Field>
 
-        <Field label="Nome visualizzato">
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Come vuoi essere chiamatə"
-            className="h-11 rounded-xl border border-input bg-background/50 px-3 text-base placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
-            maxLength={60}
-          />
-        </Field>
+          <ul className="flex flex-col gap-2">
+            {dayEvents.length === 0 && (
+              <li className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nessun impegno per questo giorno.
+              </li>
+            )}
+            {dayEvents.map((e) => (
+              <li key={e.id}>
+                <button
+                  onClick={() => { setEditing(e); setFormOpen(true); }}
+                  className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card hover:border-primary/40"
+                >
+                  <span
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
+                    style={{ backgroundColor: e.list_color + "22" }}
+                  >
+                    {e.icon ?? "•"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-display text-base font-600 leading-tight">
+                      {e.title}
+                    </span>
+                    <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span>{formatTime(new Date(e.starts_at))}</span>
+                      {e.place && (
+                        <>
+                          <span>·</span>
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate">{e.place}</span>
+                        </>
+                      )}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        <Field label="Bio">
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Una riga su di te (opzionale)"
-            rows={3}
-            maxLength={200}
-            className="rounded-xl border border-input bg-background/50 px-3 py-2.5 text-base placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
-          />
-        </Field>
+      {/* Floating create button */}
+      <button
+        onClick={() => { setEditing(null); setFormOpen(true); }}
+        className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-elevated transition-transform hover:-translate-y-0.5"
+        aria-label="Nuovo impegno"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
 
-        <Field
-          label="Chi può seguirti"
-          hint="Aperto = seguono subito · Approvazione = richieste da accettare"
-        >
-          <Segmented
-            value={privacy}
-            onChange={(v) => setPrivacy(v as "open" | "approval")}
-            options={[
-              { value: "open", label: "Aperto" },
-              { value: "approval", label: "Su approvazione" },
-            ]}
-          />
-        </Field>
-
-        <Field
-          label="Vista di presentazione"
-          hint="Come si apre il tuo profilo agli altri"
-        >
-          <Segmented
-            value={presentation}
-            onChange={(v) => setPresentation(v as "future" | "past")}
-            options={[
-              { value: "future", label: "Futuro" },
-              { value: "past", label: "Passato" },
-            ]}
-          />
-        </Field>
-
-        <button
-          type="submit"
-          disabled={save.isPending}
-          className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-elevated transition-transform hover:-translate-y-0.5 disabled:opacity-60"
-        >
-          {save.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" />
-          )}
-          Salva profilo
-        </button>
-      </form>
-
-      <p className="px-1 text-center text-xs text-muted-foreground">
-        Fase 1 di 6 · Prossimo: il tuo calendario personale.
-      </p>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-foreground">{label}</span>
-      {children}
-      {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
-    </label>
-  );
-}
-
-function Segmented<T extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { value: T; label: string }[];
-}) {
-  return (
-    <div className="grid grid-cols-2 rounded-full border border-border bg-background/50 p-1 text-sm">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
-          className={
-            "h-9 rounded-full font-medium transition-colors " +
-            (value === opt.value
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground")
-          }
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
+      <EventForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        userId={user.id}
+        editing={editing}
+        defaultDate={view === "day" ? selectedDay : cursor}
+      />
+    </AppShell>
   );
 }
