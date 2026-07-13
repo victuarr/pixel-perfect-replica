@@ -46,6 +46,7 @@ function AmiciPage() {
   const { user } = Route.useRouteContext();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("persone");
+  const [openEvent, setOpenEvent] = useState<AgendaEvent | null>(null);
 
   // Everyone I have a follow relation with (either direction)
   const { data: follows = [] } = useQuery({
