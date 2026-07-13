@@ -432,10 +432,22 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
+      event_going_count: { Args: { _event_id: string }; Returns: number }
       is_event_owner: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
+      join_event: {
+        Args: {
+          _arrival?: string
+          _list_ids?: string[]
+          _note?: string
+          _origin_event_id: string
+          _visibility?: Database["public"]["Enums"]["event_visibility"]
+        }
+        Returns: string
+      }
+      leave_event: { Args: { _origin_event_id: string }; Returns: undefined }
     }
     Enums: {
       event_visibility: "public" | "lists" | "private"
