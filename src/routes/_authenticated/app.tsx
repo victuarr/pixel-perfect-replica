@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, ChevronLeft, ChevronRight, MapPin, Lock, Users, Globe2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Plus, ChevronLeft, ChevronRight, MapPin, Lock, Users, Globe2, Clock, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { DayClock } from "@/components/calendar/DayClock";
@@ -10,6 +11,10 @@ import { WeekView } from "@/components/calendar/WeekView";
 import { YearView } from "@/components/calendar/YearView";
 import { EventForm } from "@/components/calendar/EventForm";
 import { EventInvites } from "@/components/calendar/EventInvites";
+import { EventComments } from "@/components/calendar/EventComments";
+import { EventReactions } from "@/components/calendar/EventReactions";
+import { exportCalendarIcs } from "@/lib/calendar.functions";
+import { buildEventIcs, downloadIcs } from "@/lib/ics";
 import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
 import {
   MESI,
