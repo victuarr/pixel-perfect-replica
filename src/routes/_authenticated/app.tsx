@@ -13,6 +13,7 @@ import { EventForm } from "@/components/calendar/EventForm";
 import { EventInvites } from "@/components/calendar/EventInvites";
 import { EventComments } from "@/components/calendar/EventComments";
 import { EventReactions } from "@/components/calendar/EventReactions";
+import { GoingCount } from "@/components/calendar/GoingCount";
 import { exportCalendarIcs } from "@/lib/calendar.functions";
 import { buildEventIcs, downloadIcs } from "@/lib/ics";
 import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
