@@ -234,6 +234,7 @@ function HomePage() {
                       )}
                     </span>
                   </span>
+                  <VisibilityBadge v={e.visibility_type} />
                 </button>
               </li>
             ))}
