@@ -149,12 +149,28 @@ function HomePage() {
         >
           {periodLabel()}
         </button>
-        <button
-          onClick={() => shift(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              try {
+                const ics = await exportIcs({ data: { from: from.toISOString(), to: to.toISOString() } });
+                downloadIcs("calendario.ics", ics);
+              } catch (e) {
+                console.error("Export ICS error", e);
+              }
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+            aria-label="Esporta periodo in ICS"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => shift(1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Views */}
