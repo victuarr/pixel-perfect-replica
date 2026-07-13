@@ -120,13 +120,14 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         .then(({ data }) => setInvitees(new Set((data ?? []).map((r) => r.invitee_id))));
     } else {
       const base = defaultDate ?? new Date();
+      const now = new Date();
       setQuick("");
       setTitle("");
       setIcon("🗓️");
       setPlace("");
       setDate(toInputDate(base));
-      setStartTime("19:00");
-      setEndTime("");
+      setStartTime(toInputTime(now));
+      setEndTime(toInputTime(addHours(now, 1)));
       setDescription("");
       setColor(CATEGORY_COLORS[0].value);
       // Preselect default from profile
