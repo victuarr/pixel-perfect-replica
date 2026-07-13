@@ -10,6 +10,7 @@ type Props = {
   date: Date;
   events: AgendaEvent[];
   onEventTap?: (id: string) => void;
+  onHourTap?: (hour: number) => void;
 };
 
 const SIZE = 300;
