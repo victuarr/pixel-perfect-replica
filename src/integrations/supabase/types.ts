@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          icon: string | null
+          id: string
+          list_color: string
+          origin_id: string | null
+          owner_id: string
+          place: string | null
+          starts_at: string
+          title: string
+          updated_at: string
+          visibility_type: Database["public"]["Enums"]["event_visibility"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          icon?: string | null
+          id?: string
+          list_color?: string
+          origin_id?: string | null
+          owner_id: string
+          place?: string | null
+          starts_at: string
+          title: string
+          updated_at?: string
+          visibility_type?: Database["public"]["Enums"]["event_visibility"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          icon?: string | null
+          id?: string
+          list_color?: string
+          origin_id?: string | null
+          owner_id?: string
+          place?: string | null
+          starts_at?: string
+          title?: string
+          updated_at?: string
+          visibility_type?: Database["public"]["Enums"]["event_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lists: {
         Row: {
           color: string
@@ -96,6 +159,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      event_visibility: "public" | "lists" | "private"
       presentation_view: "future" | "past"
       profile_privacy: "open" | "approval"
     }
@@ -225,6 +289,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      event_visibility: ["public", "lists", "private"],
       presentation_view: ["future", "past"],
       profile_privacy: ["open", "approval"],
     },
