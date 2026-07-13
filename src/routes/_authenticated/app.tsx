@@ -317,3 +317,16 @@ function VisibilityBadge({ v }: { v: AgendaEvent["visibility_type"] }) {
     </span>
   );
 }
+
+function ReminderBadge({ minutes }: { minutes: number }) {
+  let label: string;
+  if (minutes < 60) label = `${minutes}m prima`;
+  else if (minutes === 60) label = "1h prima";
+  else if (minutes === 1440) label = "1g prima";
+  else label = `${Math.floor(minutes / 60)}h prima`;
+  return (
+    <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <Clock className="h-3 w-3" /> {label}
+    </span>
+  );
+}
