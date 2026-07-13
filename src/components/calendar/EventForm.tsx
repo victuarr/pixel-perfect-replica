@@ -342,7 +342,12 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
             onChange={(e) => setPlace(e.target.value)}
             placeholder="Luogo"
             maxLength={120}
-            className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+            readOnly={isJoinedCopy}
+            title={isJoinedCopy ? "Luogo bloccato dall'organizzatore" : undefined}
+            className={
+              "h-11 rounded-xl border border-input px-3 text-sm outline-none focus:border-ring " +
+              (isJoinedCopy ? "bg-muted/30 text-muted-foreground" : "bg-background/50")
+            }
           />
 
           <div className="grid grid-cols-3 gap-2">
