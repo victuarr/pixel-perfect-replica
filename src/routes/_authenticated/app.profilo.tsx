@@ -127,6 +127,18 @@ function ProfileEditor({ profile, email }: { profile: Profile; email: string }) 
         </div>
       </div>
 
+      <Link
+        to="/app/liste"
+        className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-card hover:border-primary/40"
+      >
+        <span>
+          <span className="block font-display text-base font-600">Le mie liste</span>
+          <span className="text-xs text-muted-foreground">Gestisci chi vede cosa</span>
+        </span>
+        <span className="text-muted-foreground">→</span>
+      </Link>
+
+
       <form
         onSubmit={(e) => { e.preventDefault(); save.mutate(); }}
         className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 shadow-card"
