@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_lists: {
+        Row: {
+          created_at: string
+          event_id: string
+          list_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          list_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          list_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lists_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_lists_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -71,6 +104,42 @@ export type Database = {
           {
             foreignKeyName: "events_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      list_members: {
+        Row: {
+          created_at: string
+          id: string
+          list_id: string
+          member_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_id: string
+          member_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_members_member_id_fkey"
+            columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
