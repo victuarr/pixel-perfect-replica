@@ -6,7 +6,7 @@ import { formatItalianDate } from "@/lib/date-utils";
 
 type Props = {
   children: React.ReactNode;
-  /** Optional title shown small under the username. */
+  /** Optional title shown in the header. */
   subtitle?: string;
   right?: React.ReactNode;
 };
@@ -37,14 +37,14 @@ export function AppShell({ children, subtitle, right }: Props) {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border/50 bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-5 py-3">
-          <Link to="/app/profilo" className="min-w-0 group">
-            <p className="truncate font-display text-lg font-700 leading-tight group-hover:text-primary">
-              @{username || "…"}
+          <div className="min-w-0">
+            <p className="truncate font-display text-lg font-700 leading-tight">
+              {subtitle ?? "Calendario"}
             </p>
             <p className="truncate text-[11px] font-medium text-muted-foreground">
-              {subtitle ?? formatItalianDate(new Date())}
+              {formatItalianDate(new Date())}
             </p>
-          </Link>
+          </div>
           <div className="flex items-center gap-2">
             {right}
             <Link
@@ -62,7 +62,12 @@ export function AppShell({ children, subtitle, right }: Props) {
 
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto grid w-full max-w-md grid-cols-2">
-          <TabLink to="/app" active={path === "/app"} icon={<CalendarDays className="h-5 w-5" />} label="Calendario" />
+          <TabLink
+            to="/app"
+            active={path === "/app"}
+            icon={<CalendarDays className="h-5 w-5" />}
+            label={`@${username || "…"}`}
+          />
           <TabLink
             to="/app/amici"
             active={path.startsWith("/app/amici")}
@@ -76,8 +81,16 @@ export function AppShell({ children, subtitle, right }: Props) {
 }
 
 function TabLink({
-  to, active, icon, label,
-}: { to: string; active: boolean; icon: React.ReactNode; label: string }) {
+  to,
+  active,
+  icon,
+  label,
+}: {
+  to: string;
+  active: boolean;
+  icon: React.ReactNode;
+  label: React.ReactNode;
+}) {
   return (
     <Link
       to={to}
@@ -87,7 +100,7 @@ function TabLink({
       }
     >
       <span className={active ? "text-foreground" : ""}>{icon}</span>
-      {label}
+      <span className="max-w-[80px] truncate">{label}</span>
     </Link>
   );
 }
