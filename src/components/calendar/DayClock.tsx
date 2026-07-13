@@ -117,32 +117,41 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
       ))}
 
 
-      {/* Hour ticks every 3h with labels */}
-      {[0, 3, 6, 9, 12, 15, 18, 21].map((h) => {
+      {/* Hour ticks and clickable labels for all 24 hours */}
+      {Array.from({ length: 24 }, (_, h) => h).map((h) => {
         const a = hourToAngle(h);
+        const major = h % 3 === 0;
         const [x1, y1] = polar(a, R_OUTER + 2);
-        const [x2, y2] = polar(a, R_OUTER - 4);
-        const [tx, ty] = polar(a, R_OUTER + 18);
+        const [x2, y2] = polar(a, R_OUTER - (major ? 4 : 3));
+        const [tx, ty] = polar(a, R_OUTER + 16);
         return (
-          <g key={h}>
-            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--color-muted-foreground)" strokeWidth="1" opacity="0.7" />
+          <g
+            key={h}
+            onClick={() => onHourTap?.(h)}
+            style={{ cursor: onHourTap ? "pointer" : undefined }}
+          >
+            <line
+              x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke={major ? "var(--color-muted-foreground)" : "var(--color-border)"}
+              strokeWidth="1" opacity={major ? 0.7 : 1}
+            />
             <text
               x={tx} y={ty}
               textAnchor="middle" dominantBaseline="central"
               fill="var(--color-muted-foreground)"
-              fontSize="11" fontFamily="var(--font-display)"
+              fontSize={major ? "10" : "8"}
+              fontFamily="var(--font-display)"
+              opacity={major ? 1 : 0.75}
             >
               {h}
             </text>
+            {/* Larger transparent hit target for easier tapping */}
+            {onHourTap && (
+              <circle cx={tx} cy={ty} r="12" fill="transparent" />
+            )}
           </g>
         );
       })}
-      {Array.from({ length: 24 }, (_, h) => h).map((h) => {
-        if (h % 3 === 0) return null;
-        const a = hourToAngle(h);
-        const [x1, y1] = polar(a, R_OUTER);
-        const [x2, y2] = polar(a, R_OUTER - 3);
-        return <line key={h} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--color-border)" strokeWidth="1" />;
       })}
 
       {/* Center hub */}
