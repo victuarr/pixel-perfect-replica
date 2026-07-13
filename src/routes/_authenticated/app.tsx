@@ -13,6 +13,7 @@ import { EventForm } from "@/components/calendar/EventForm";
 import { EventInvites } from "@/components/calendar/EventInvites";
 import { EventComments } from "@/components/calendar/EventComments";
 import { EventReactions } from "@/components/calendar/EventReactions";
+import { GoingCount } from "@/components/calendar/GoingCount";
 import { exportCalendarIcs } from "@/lib/calendar.functions";
 import { buildEventIcs, downloadIcs } from "@/lib/ics";
 import type { AgendaEvent, CalendarView } from "@/components/calendar/types";
@@ -268,7 +269,10 @@ function HomePage() {
                   currentUserId={user.id}
                 />
                 <div className="flex items-center justify-between">
-                  <EventReactions eventId={e.id} currentUserId={user.id} />
+                  <div className="flex items-center gap-3">
+                    <EventReactions eventId={e.id} currentUserId={user.id} />
+                    <GoingCount eventId={e.origin_id ?? e.id} />
+                  </div>
                   <button
                     onClick={() => downloadIcs(`evento-${e.id}.ics`, buildEventIcs(e))}
                     className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"

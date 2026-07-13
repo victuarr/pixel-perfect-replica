@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Sparkles, Trash2, Loader2, Globe2, Lock, Users, Clock } from "lucide-react";
+import { X, Sparkles, Trash2, Loader2, Globe2, Lock, Users, Clock, LogOut } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -248,6 +248,28 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
     },
   });
 
+  const leave = useMutation({
+    mutationFn: async () => {
+      if (!editing?.origin_id) return;
+      const { error } = await supabase.rpc("leave_event", {
+        _origin_event_id: editing.origin_id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Rimosso dai tuoi impegni");
+      qc.invalidateQueries({ queryKey: ["events", userId] });
+      if (editing?.origin_id) {
+        qc.invalidateQueries({ queryKey: ["going-count", editing.origin_id] });
+        qc.invalidateQueries({ queryKey: ["my-copy", editing.origin_id, userId] });
+      }
+      onClose();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Errore"),
+  });
+
+  const isJoinedCopy = !!editing?.origin_id;
+
   if (!open) return null;
 
   const visibilityLabel: Record<Visibility, string> = {
@@ -320,7 +342,12 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
             onChange={(e) => setPlace(e.target.value)}
             placeholder="Luogo"
             maxLength={120}
-            className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+            readOnly={isJoinedCopy}
+            title={isJoinedCopy ? "Luogo bloccato dall'organizzatore" : undefined}
+            className={
+              "h-11 rounded-xl border border-input px-3 text-sm outline-none focus:border-ring " +
+              (isJoinedCopy ? "bg-muted/30 text-muted-foreground" : "bg-background/50")
+            }
           />
 
           <div className="grid grid-cols-3 gap-2">
@@ -484,6 +511,17 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
                 className="inline-flex h-12 items-center justify-center rounded-full border border-destructive/40 px-4 text-sm text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+            {isJoinedCopy && (
+              <button
+                type="button"
+                onClick={() => { if (confirm("Rimuoverti dall'evento?")) leave.mutate(); }}
+                disabled={leave.isPending}
+                className="inline-flex h-12 items-center justify-center gap-1.5 rounded-full border border-destructive/40 px-4 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-60"
+              >
+                {leave.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                Non vengo più
               </button>
             )}
             <button

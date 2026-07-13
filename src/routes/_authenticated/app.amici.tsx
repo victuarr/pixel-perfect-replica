@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ReceivedInvites } from "@/components/ReceivedInvites";
+import { ForeignEventDetail } from "@/components/calendar/ForeignEventDetail";
+import { GoingCount } from "@/components/calendar/GoingCount";
 import { formatItalianDate, formatTime } from "@/lib/date-utils";
 import type { AgendaEvent } from "@/components/calendar/types";
 
@@ -44,6 +46,7 @@ function AmiciPage() {
   const { user } = Route.useRouteContext();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("persone");
+  const [openEvent, setOpenEvent] = useState<AgendaEvent | null>(null);
 
   // Everyone I have a follow relation with (either direction)
   const { data: follows = [] } = useQuery({
@@ -130,6 +133,7 @@ function AmiciPage() {
             items={feed}
             hasFollowing={followingIds.length > 0}
             onSwitch={() => setTab("persone")}
+            onOpen={(e) => setOpenEvent(e)}
           />
         </div>
       ) : (
@@ -139,6 +143,14 @@ function AmiciPage() {
           incomingPending={incomingPending}
           outgoingPending={outgoingPending}
           onChanged={() => qc.invalidateQueries({ queryKey: ["follows", user.id] })}
+        />
+      )}
+
+      {openEvent && (
+        <ForeignEventDetail
+          event={openEvent}
+          userId={user.id}
+          onClose={() => setOpenEvent(null)}
         />
       )}
     </AppShell>
@@ -176,11 +188,13 @@ function FeedTab({
   items,
   hasFollowing,
   onSwitch,
+  onOpen,
 }: {
   loading: boolean;
   items: FeedItem[];
   hasFollowing: boolean;
   onSwitch: () => void;
+  onOpen: (e: FeedItem) => void;
 }) {
   if (!hasFollowing) {
     return (
@@ -239,35 +253,42 @@ function FeedTab({
             </h2>
             <ul className="flex flex-col gap-2">
               {evs.map((e) => (
-                <li
-                  key={e.id}
-                  className="flex items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-card"
-                >
-                  <span
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
-                    style={{ backgroundColor: e.list_color + "22" }}
+                <li key={e.id}>
+                  <button
+                    type="button"
+                    onClick={() => onOpen(e)}
+                    className="flex w-full items-start gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card hover:border-primary/40"
                   >
-                    {e.icon ?? "•"}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-base font-600 leading-tight">
-                      {e.title}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span>{formatTime(new Date(e.starts_at))}</span>
-                      {e.place && (
-                        <>
-                          <span>·</span>
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{e.place}</span>
-                        </>
-                      )}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground/80">
-                      @{e.owner.username}
-                      {e.owner.display_name ? ` · ${e.owner.display_name}` : ""}
-                    </p>
-                  </div>
+                    <span
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
+                      style={{ backgroundColor: e.list_color + "22" }}
+                    >
+                      {e.icon ?? "•"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-display text-base font-600 leading-tight">
+                        {e.title}
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span>{formatTime(new Date(e.starts_at))}</span>
+                        {e.place && (
+                          <>
+                            <span>·</span>
+                            <MapPin className="h-3 w-3" />
+                            <span className="truncate">{e.place}</span>
+                          </>
+                        )}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <p className="text-[11px] text-muted-foreground/80">
+                          @{e.owner.username}
+                          {e.owner.display_name ? ` · ${e.owner.display_name}` : ""}
+                        </p>
+                        <span className="text-muted-foreground/40">·</span>
+                        <GoingCount eventId={e.origin_id ?? e.id} />
+                      </div>
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>
