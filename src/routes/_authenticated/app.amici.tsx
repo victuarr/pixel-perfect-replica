@@ -188,11 +188,13 @@ function FeedTab({
   items,
   hasFollowing,
   onSwitch,
+  onOpen,
 }: {
   loading: boolean;
   items: FeedItem[];
   hasFollowing: boolean;
   onSwitch: () => void;
+  onOpen: (e: FeedItem) => void;
 }) {
   if (!hasFollowing) {
     return (
