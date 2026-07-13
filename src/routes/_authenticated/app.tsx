@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, MapPin, Lock, Users, Globe2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { DayClock } from "@/components/calendar/DayClock";
@@ -234,6 +234,7 @@ function HomePage() {
                       )}
                     </span>
                   </span>
+                  <VisibilityBadge v={e.visibility_type} />
                 </button>
               </li>
             ))}
@@ -258,5 +259,19 @@ function HomePage() {
         defaultDate={view === "day" ? selectedDay : cursor}
       />
     </AppShell>
+  );
+}
+
+function VisibilityBadge({ v }: { v: AgendaEvent["visibility_type"] }) {
+  const map = {
+    private: { icon: <Lock className="h-3 w-3" />, label: "Privato" },
+    lists: { icon: <Users className="h-3 w-3" />, label: "Liste" },
+    public: { icon: <Globe2 className="h-3 w-3" />, label: "Pubblico" },
+  } as const;
+  const { icon, label } = map[v];
+  return (
+    <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      {icon} {label}
+    </span>
   );
 }

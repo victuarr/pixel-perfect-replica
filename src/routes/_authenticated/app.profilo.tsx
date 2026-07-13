@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,6 +126,18 @@ function ProfileEditor({ profile, email }: { profile: Profile; email: string }) 
           <p className="mt-0.5 truncate text-xs text-muted-foreground/80">{email}</p>
         </div>
       </div>
+
+      <Link
+        to="/app/liste"
+        className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-card hover:border-primary/40"
+      >
+        <span>
+          <span className="block font-display text-base font-600">Le mie liste</span>
+          <span className="text-xs text-muted-foreground">Gestisci chi vede cosa</span>
+        </span>
+        <span className="text-muted-foreground">→</span>
+      </Link>
+
 
       <form
         onSubmit={(e) => { e.preventDefault(); save.mutate(); }}
