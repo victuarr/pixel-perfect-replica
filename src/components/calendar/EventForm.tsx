@@ -513,6 +513,17 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
                 <Trash2 className="h-4 w-4" />
               </button>
             )}
+            {isJoinedCopy && (
+              <button
+                type="button"
+                onClick={() => { if (confirm("Rimuoverti dall'evento?")) leave.mutate(); }}
+                disabled={leave.isPending}
+                className="inline-flex h-12 items-center justify-center gap-1.5 rounded-full border border-destructive/40 px-4 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-60"
+              >
+                {leave.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                Non vengo più
+              </button>
+            )}
             <button
               type="submit"
               disabled={save.isPending}
