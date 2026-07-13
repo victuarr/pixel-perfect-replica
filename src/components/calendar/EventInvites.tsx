@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Check, HelpCircle, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import { GoingCount } from "./GoingCount";
 
 type InviteStatus = Database["public"]["Enums"]["invite_status"];
 
