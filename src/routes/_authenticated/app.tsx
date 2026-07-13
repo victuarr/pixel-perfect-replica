@@ -47,6 +47,7 @@ function HomePage() {
   const [selectedDay, setSelectedDay] = useState<Date>(() => startOfDay(new Date()));
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AgendaEvent | null>(null);
+  const exportIcs = useServerFn(exportCalendarIcs);
 
   // Fetch a window that covers the current view
   const { from, to } = useMemo(() => {
