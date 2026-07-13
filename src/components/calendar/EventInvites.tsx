@@ -73,9 +73,12 @@ export function EventInvites({
 
   return (
     <div className="rounded-2xl border border-border bg-card p-3">
-      <h3 className="mb-2 text-[11px] font-600 uppercase tracking-[0.16em] text-muted-foreground">
-        Partecipanti ({invites.length})
-      </h3>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-[11px] font-600 uppercase tracking-[0.16em] text-muted-foreground">
+          Partecipanti
+        </h3>
+        <GoingCount eventId={eventId} />
+      </div>
 
       {mine && !isOwner && (
         <div className="mb-3 flex gap-1.5">
