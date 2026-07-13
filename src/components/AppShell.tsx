@@ -1,21 +1,35 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Users, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
-import { formatItalianDate, formatTime } from "@/lib/date-utils";
+import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
+import { CalendarDays, Users, Settings } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { formatItalianDate } from "@/lib/date-utils";
 
 type Props = {
   children: React.ReactNode;
-  /** Optional title shown small under the date. */
+  /** Optional title shown small under the username. */
   subtitle?: string;
   right?: React.ReactNode;
 };
 
 export function AppShell({ children, subtitle, right }: Props) {
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(id);
-  }, []);
+  const ctx = useRouteContext({ from: "/_authenticated" });
+  const userId = ctx.user.id;
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile-header", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("username, display_name")
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 60_000,
+  });
+
+  const username = profile?.username ?? "";
   const location = useLocation();
   const path = location.pathname;
 
@@ -23,14 +37,14 @@ export function AppShell({ children, subtitle, right }: Props) {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border/50 bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-5 py-3">
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-              {formatTime(now)}
+          <Link to="/app/profilo" className="min-w-0 group">
+            <p className="truncate font-display text-lg font-700 leading-tight group-hover:text-primary">
+              @{username || "…"}
             </p>
-            <p className="truncate font-display text-base font-700 leading-tight">
-              {subtitle ?? formatItalianDate(now)}
+            <p className="truncate text-[11px] font-medium text-muted-foreground">
+              {subtitle ?? formatItalianDate(new Date())}
             </p>
-          </div>
+          </Link>
           <div className="flex items-center gap-2">
             {right}
             <Link
@@ -48,7 +62,7 @@ export function AppShell({ children, subtitle, right }: Props) {
 
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto grid w-full max-w-md grid-cols-2">
-          <TabLink to="/app" active={path === "/app"} icon={<Home className="h-5 w-5" />} label="Home" />
+          <TabLink to="/app" active={path === "/app"} icon={<CalendarDays className="h-5 w-5" />} label="Calendario" />
           <TabLink
             to="/app/amici"
             active={path.startsWith("/app/amici")}
