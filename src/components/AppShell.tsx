@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { CalendarDays, Users, Settings } from "lucide-react";
+import { CalendarDays, Users, User as UserIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatItalianDate } from "@/lib/date-utils";

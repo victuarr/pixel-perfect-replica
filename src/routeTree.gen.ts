@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppProfiloRouteImport } from './routes/_authenticated/app.profilo'
 import { Route as AuthenticatedAppListeRouteImport } from './routes/_authenticated/app.liste'
 import { Route as AuthenticatedAppAmiciRouteImport } from './routes/_authenticated/app.amici'
@@ -33,25 +33,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppProfiloRoute = AuthenticatedAppProfiloRouteImport.update({
-  id: '/profilo',
-  path: '/profilo',
-  getParentRoute: () => AuthenticatedAppRoute,
+  id: '/app/profilo',
+  path: '/app/profilo',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppListeRoute = AuthenticatedAppListeRouteImport.update({
-  id: '/liste',
-  path: '/liste',
-  getParentRoute: () => AuthenticatedAppRoute,
+  id: '/app/liste',
+  path: '/app/liste',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppAmiciRoute = AuthenticatedAppAmiciRouteImport.update({
-  id: '/amici',
-  path: '/amici',
-  getParentRoute: () => AuthenticatedAppRoute,
+  id: '/app/amici',
+  path: '/app/amici',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicHooksSendRemindersRoute =
   ApiPublicHooksSendRemindersRouteImport.update({
@@ -69,20 +69,20 @@ const AuthenticatedAppListeListIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/amici': typeof AuthenticatedAppAmiciRoute
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
   '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/amici': typeof AuthenticatedAppAmiciRoute
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/app': typeof AuthenticatedAppIndexRoute
   '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
@@ -91,10 +91,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/amici': typeof AuthenticatedAppAmiciRoute
   '/_authenticated/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/_authenticated/app/profilo': typeof AuthenticatedAppProfiloRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
@@ -103,20 +103,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/app'
     | '/app/amici'
     | '/app/liste'
     | '/app/profilo'
+    | '/app/'
     | '/app/liste/$listId'
     | '/api/public/hooks/send-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/app'
     | '/app/amici'
     | '/app/liste'
     | '/app/profilo'
+    | '/app'
     | '/app/liste/$listId'
     | '/api/public/hooks/send-reminders'
   id:
@@ -124,10 +124,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/app'
     | '/_authenticated/app/amici'
     | '/_authenticated/app/liste'
     | '/_authenticated/app/profilo'
+    | '/_authenticated/app/'
     | '/_authenticated/app/liste/$listId'
     | '/api/public/hooks/send-reminders'
   fileRoutesById: FileRoutesById
@@ -162,33 +162,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/app': {
-      id: '/_authenticated/app'
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
       path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/profilo': {
       id: '/_authenticated/app/profilo'
-      path: '/profilo'
+      path: '/app/profilo'
       fullPath: '/app/profilo'
       preLoaderRoute: typeof AuthenticatedAppProfiloRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/liste': {
       id: '/_authenticated/app/liste'
-      path: '/liste'
+      path: '/app/liste'
       fullPath: '/app/liste'
       preLoaderRoute: typeof AuthenticatedAppListeRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/amici': {
       id: '/_authenticated/app/amici'
-      path: '/amici'
+      path: '/app/amici'
       fullPath: '/app/amici'
       preLoaderRoute: typeof AuthenticatedAppAmiciRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/hooks/send-reminders': {
       id: '/api/public/hooks/send-reminders'
@@ -220,27 +220,18 @@ const AuthenticatedAppListeRouteWithChildren =
     AuthenticatedAppListeRouteChildren,
   )
 
-interface AuthenticatedAppRouteChildren {
+interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppAmiciRoute: typeof AuthenticatedAppAmiciRoute
   AuthenticatedAppListeRoute: typeof AuthenticatedAppListeRouteWithChildren
   AuthenticatedAppProfiloRoute: typeof AuthenticatedAppProfiloRoute
-}
-
-const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
-  AuthenticatedAppAmiciRoute: AuthenticatedAppAmiciRoute,
-  AuthenticatedAppListeRoute: AuthenticatedAppListeRouteWithChildren,
-  AuthenticatedAppProfiloRoute: AuthenticatedAppProfiloRoute,
-}
-
-const AuthenticatedAppRouteWithChildren =
-  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
-
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedAppAmiciRoute: AuthenticatedAppAmiciRoute,
+  AuthenticatedAppListeRoute: AuthenticatedAppListeRouteWithChildren,
+  AuthenticatedAppProfiloRoute: AuthenticatedAppProfiloRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
