@@ -248,6 +248,28 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
     },
   });
 
+  const leave = useMutation({
+    mutationFn: async () => {
+      if (!editing?.origin_id) return;
+      const { error } = await supabase.rpc("leave_event", {
+        _origin_event_id: editing.origin_id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Rimosso dai tuoi impegni");
+      qc.invalidateQueries({ queryKey: ["events", userId] });
+      if (editing?.origin_id) {
+        qc.invalidateQueries({ queryKey: ["going-count", editing.origin_id] });
+        qc.invalidateQueries({ queryKey: ["my-copy", editing.origin_id, userId] });
+      }
+      onClose();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Errore"),
+  });
+
+  const isJoinedCopy = !!editing?.origin_id;
+
   if (!open) return null;
 
   const visibilityLabel: Record<Visibility, string> = {
