@@ -110,6 +110,33 @@ export type Database = {
           },
         ]
       }
+      follows: {
+        Row: {
+          created_at: string
+          followee_id: string
+          follower_id: string
+          id: string
+          status: Database["public"]["Enums"]["follow_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          followee_id: string
+          follower_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          followee_id?: string
+          follower_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       list_members: {
         Row: {
           created_at: string
@@ -229,6 +256,7 @@ export type Database = {
     }
     Enums: {
       event_visibility: "public" | "lists" | "private"
+      follow_status: "pending" | "accepted"
       presentation_view: "future" | "past"
       profile_privacy: "open" | "approval"
     }
@@ -359,6 +387,7 @@ export const Constants = {
   public: {
     Enums: {
       event_visibility: ["public", "lists", "private"],
+      follow_status: ["pending", "accepted"],
       presentation_view: ["future", "past"],
       profile_privacy: ["open", "approval"],
     },
