@@ -223,6 +223,13 @@ function HomePage() {
                 const e = dayEvents.find((ev) => ev.id === id);
                 if (e) { setEditing(e); setFormOpen(true); }
               }}
+              onHourTap={(h) => {
+                const d = new Date(selectedDay);
+                d.setHours(h, 0, 0, 0);
+                setEditing(null);
+                setPresetStart(d);
+                setFormOpen(true);
+              }}
             />
           </div>
 
