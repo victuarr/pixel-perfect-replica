@@ -143,7 +143,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setInvitees(new Set());
       setReminderMinutes(null);
     }
-  }, [open, editing, defaultDate, profile?.default_visibility_list_id]);
+  }, [open, editing, defaultDate, defaultStart, profile?.default_visibility_list_id]);
 
   function applyQuick() {
     const r = parseNL(quick);
