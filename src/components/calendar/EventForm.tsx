@@ -17,6 +17,7 @@ type Props = {
   userId: string;
   editing?: AgendaEvent | null;
   defaultDate?: Date;
+  defaultStart?: Date;
 };
 
 const EMOJI = ["🗓️", "🍸", "🎵", "💼", "🏃", "🍝", "🎬", "☕", "❤️", "✈️", "🎂", "📚"];
@@ -35,16 +36,17 @@ function addHours(d: Date, n: number): Date {
   return x;
 }
 
-export function EventForm({ open, onClose, userId, editing, defaultDate }: Props) {
+export function EventForm({ open, onClose, userId, editing, defaultDate, defaultStart }: Props) {
   const qc = useQueryClient();
   const [quick, setQuick] = useState("");
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("🗓️");
   const [place, setPlace] = useState("");
   const now = new Date();
-  const [date, setDate] = useState(toInputDate(defaultDate ?? now));
-  const [startTime, setStartTime] = useState(toInputTime(now));
-  const [endTime, setEndTime] = useState(toInputTime(addHours(now, 1)));
+  const initialStart = defaultStart ?? now;
+  const [date, setDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
+  const [startTime, setStartTime] = useState(toInputTime(initialStart));
+  const [endTime, setEndTime] = useState(toInputTime(addHours(initialStart, 1)));
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(CATEGORY_COLORS[0].value);
   const [visibility, setVisibility] = useState<Visibility>("private");
@@ -120,14 +122,14 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
         .then(({ data }) => setInvitees(new Set((data ?? []).map((r) => r.invitee_id))));
     } else {
       const base = defaultDate ?? new Date();
-      const now = new Date();
+      const startBase = defaultStart ?? new Date();
       setQuick("");
       setTitle("");
       setIcon("🗓️");
       setPlace("");
-      setDate(toInputDate(base));
-      setStartTime(toInputTime(now));
-      setEndTime(toInputTime(addHours(now, 1)));
+      setDate(toInputDate(defaultStart ?? base));
+      setStartTime(toInputTime(startBase));
+      setEndTime(toInputTime(addHours(startBase, 1)));
       setDescription("");
       setColor(CATEGORY_COLORS[0].value);
       // Preselect default from profile
@@ -141,7 +143,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
       setInvitees(new Set());
       setReminderMinutes(null);
     }
-  }, [open, editing, defaultDate, profile?.default_visibility_list_id]);
+  }, [open, editing, defaultDate, defaultStart, profile?.default_visibility_list_id]);
 
   function applyQuick() {
     const r = parseNL(quick);

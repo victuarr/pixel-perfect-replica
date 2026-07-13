@@ -48,6 +48,7 @@ function HomePage() {
   const [selectedDay, setSelectedDay] = useState<Date>(() => startOfDay(new Date()));
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AgendaEvent | null>(null);
+  const [presetStart, setPresetStart] = useState<Date | null>(null);
   const exportIcs = useServerFn(exportCalendarIcs);
 
   // Fetch a window that covers the current view
@@ -222,6 +223,13 @@ function HomePage() {
                 const e = dayEvents.find((ev) => ev.id === id);
                 if (e) { setEditing(e); setFormOpen(true); }
               }}
+              onHourTap={(h) => {
+                const d = new Date(selectedDay);
+                d.setHours(h, 0, 0, 0);
+                setEditing(null);
+                setPresetStart(d);
+                setFormOpen(true);
+              }}
             />
           </div>
 
@@ -290,7 +298,7 @@ function HomePage() {
 
       {/* Floating create button */}
       <button
-        onClick={() => { setEditing(null); setFormOpen(true); }}
+        onClick={() => { setEditing(null); setPresetStart(null); setFormOpen(true); }}
         className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-elevated transition-transform hover:-translate-y-0.5"
         aria-label="Nuovo impegno"
       >
@@ -299,10 +307,11 @@ function HomePage() {
 
       <EventForm
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormOpen(false); setPresetStart(null); }}
         userId={user.id}
         editing={editing}
         defaultDate={view === "day" ? selectedDay : cursor}
+        defaultStart={presetStart ?? undefined}
       />
     </AppShell>
   );
