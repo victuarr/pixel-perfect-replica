@@ -152,7 +152,6 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
           </g>
         );
       })}
-      })}
 
       {/* Center hub */}
       <circle cx={CENTER} cy={CENTER} r={R_INNER} fill="var(--color-card)" stroke="var(--color-border)" />
