@@ -298,7 +298,7 @@ function HomePage() {
 
       {/* Floating create button */}
       <button
-        onClick={() => { setEditing(null); setFormOpen(true); }}
+        onClick={() => { setEditing(null); setPresetStart(null); setFormOpen(true); }}
         className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-elevated transition-transform hover:-translate-y-0.5"
         aria-label="Nuovo impegno"
       >
@@ -307,10 +307,11 @@ function HomePage() {
 
       <EventForm
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormOpen(false); setPresetStart(null); }}
         userId={user.id}
         editing={editing}
         defaultDate={view === "day" ? selectedDay : cursor}
+        defaultStart={presetStart ?? undefined}
       />
     </AppShell>
   );
