@@ -397,6 +397,50 @@ export function EventForm({ open, onClose, userId, editing, defaultDate }: Props
             )}
           </div>
 
+          {/* Invita amici */}
+          <div className="rounded-2xl border border-border bg-card/50 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium">Invita amici</span>
+              <span className="text-[11px] text-muted-foreground">
+                {invitees.size > 0 ? `${invitees.size} selezionati` : "opzionale"}
+              </span>
+            </div>
+            {friends.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Nessun amico ancora. <Link to="/app/amici" onClick={onClose} className="font-medium text-foreground underline">Trova persone</Link>.
+              </p>
+            ) : (
+              <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
+                {friends.map((f) => {
+                  const on = invitees.has(f.id);
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => toggleInvitee(f.id)}
+                      className={
+                        "flex items-center gap-2 rounded-xl border p-2 text-left text-sm transition " +
+                        (on ? "border-primary bg-primary/10" : "border-border bg-background/60")
+                      }
+                    >
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-600 text-primary">
+                        {(f.display_name ?? f.username).slice(0, 2).toUpperCase()}
+                      </span>
+                      <span className="flex-1 truncate">
+                        {f.display_name || f.username}
+                        <span className="ml-1 text-xs text-muted-foreground">@{f.username}</span>
+                      </span>
+                      <span className={"flex h-5 w-5 items-center justify-center rounded-full border " + (on ? "border-primary bg-primary text-primary-foreground" : "border-muted")}>
+                        {on ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
