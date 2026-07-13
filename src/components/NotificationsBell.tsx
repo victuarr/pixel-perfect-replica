@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Check, UserPlus, CalendarPlus, CalendarCheck } from "lucide-react";
+import { Bell, Check, UserPlus, CalendarPlus, CalendarCheck, Clock, MessageCircle, Smile } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useNotifications, type NotificationWithActor } from "@/hooks/useNotifications";
 
@@ -8,6 +8,9 @@ const ITALIAN_TYPE: Record<NotificationWithActor["type"], string> = {
   follow_accepted: "ha accettato la tua richiesta",
   event_invite: "ti ha invitato a un evento",
   event_rsvp: "ha risposto al tuo invito",
+  event_reminder: "hai un promemoria per un evento",
+  event_comment: "ha commentato un evento",
+  event_reaction: "ha reagito a un evento",
 };
 
 const ICONS: Record<NotificationWithActor["type"], React.ReactNode> = {
@@ -15,6 +18,9 @@ const ICONS: Record<NotificationWithActor["type"], React.ReactNode> = {
   follow_accepted: <Check className="h-3.5 w-3.5" />,
   event_invite: <CalendarPlus className="h-3.5 w-3.5" />,
   event_rsvp: <CalendarCheck className="h-3.5 w-3.5" />,
+  event_reminder: <Clock className="h-3.5 w-3.5" />,
+  event_comment: <MessageCircle className="h-3.5 w-3.5" />,
+  event_reaction: <Smile className="h-3.5 w-3.5" />,
 };
 
 export function NotificationsBell({ userId }: { userId: string }) {

@@ -10,6 +10,7 @@ export type AgendaEvent = {
   visibility_type: "public" | "lists" | "private";
   origin_id: string | null;
   list_color: string;
+  reminder_minutes: number | null;
   created_at: string;
   updated_at: string;
 };

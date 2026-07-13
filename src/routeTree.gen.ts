@@ -16,6 +16,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAppProfiloRouteImport } from './routes/_authenticated/app.profilo'
 import { Route as AuthenticatedAppListeRouteImport } from './routes/_authenticated/app.liste'
 import { Route as AuthenticatedAppAmiciRouteImport } from './routes/_authenticated/app.amici'
+import { Route as ApiPublicHooksSendRemindersRouteImport } from './routes/api/public/hooks/send-reminders'
 import { Route as AuthenticatedAppListeListIdRouteImport } from './routes/_authenticated/app.liste.$listId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -52,6 +53,12 @@ const AuthenticatedAppAmiciRoute = AuthenticatedAppAmiciRouteImport.update({
   path: '/amici',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiPublicHooksSendRemindersRoute =
+  ApiPublicHooksSendRemindersRouteImport.update({
+    id: '/api/public/hooks/send-reminders',
+    path: '/api/public/hooks/send-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppListeListIdRoute =
   AuthenticatedAppListeListIdRouteImport.update({
     id: '/$listId',
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
+  '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
+  '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/_authenticated/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/_authenticated/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/_authenticated/app/liste/$listId': typeof AuthenticatedAppListeListIdRoute
+  '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/app/liste'
     | '/app/profilo'
     | '/app/liste/$listId'
+    | '/api/public/hooks/send-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/app/liste'
     | '/app/profilo'
     | '/app/liste/$listId'
+    | '/api/public/hooks/send-reminders'
   id:
     | '__root__'
     | '/'
@@ -117,12 +129,14 @@ export interface FileRouteTypes {
     | '/_authenticated/app/liste'
     | '/_authenticated/app/profilo'
     | '/_authenticated/app/liste/$listId'
+    | '/api/public/hooks/send-reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksSendRemindersRoute: typeof ApiPublicHooksSendRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -175,6 +189,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/amici'
       preLoaderRoute: typeof AuthenticatedAppAmiciRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/api/public/hooks/send-reminders': {
+      id: '/api/public/hooks/send-reminders'
+      path: '/api/public/hooks/send-reminders'
+      fullPath: '/api/public/hooks/send-reminders'
+      preLoaderRoute: typeof ApiPublicHooksSendRemindersRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/liste/$listId': {
       id: '/_authenticated/app/liste/$listId'
@@ -229,17 +250,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksSendRemindersRoute: ApiPublicHooksSendRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
