@@ -116,7 +116,7 @@ export function AppShell({ children, subtitle, right, variant = "user" }: Props)
       <Sheet open={amiciOpen} onOpenChange={(v) => amiciStore.set(v)}>
         <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-5 sm:max-w-md">
           <SheetHeader className="mb-4 text-left">
-            <SheetTitle className="font-display text-lg font-700">Amici</SheetTitle>
+            <SheetTitle className="font-display text-lg font-700">Laviniard</SheetTitle>
           </SheetHeader>
           <AmiciPanel userId={userId} />
         </SheetContent>

@@ -133,7 +133,7 @@ function AmiciCalendarPage() {
   }
 
   return (
-    <AppShell variant="amici" subtitle="Amici">
+    <AppShell variant="amici" subtitle="Laviniard">
       <div className="mb-4 grid grid-cols-4 rounded-full border border-border bg-card p-1 text-xs">
         {VIEWS.map((v) => (
           <button
