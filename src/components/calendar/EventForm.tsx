@@ -162,7 +162,12 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
   function toggleList(id: string) {
     setSelectedLists((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else {
+        next.add(id);
+        const l = lists.find((x) => x.id === id);
+        if (l?.color) setColor(l.color);
+      }
       return next;
     });
   }
@@ -379,19 +384,34 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
             </label>
           </div>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Categoria / colore</span>
-            <div className="flex gap-2">
-              {CATEGORY_COLORS.map((c) => (
-                <button key={c.value} type="button" onClick={() => setColor(c.value)}
-                  className={"h-10 flex-1 rounded-full text-[11px] font-medium transition " +
-                    (color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : "opacity-80")}
-                  style={{ backgroundColor: c.value + "22", color: c.value }}>
-                  {c.label}
-                </button>
-              ))}
+          {visibility === "lists" ? (
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
+              <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
+              Il colore viene preso dalla lista selezionata.
             </div>
-          </label>
+          ) : (
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Colore</span>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_COLORS.map((c) => (
+                  <button key={c.value} type="button" onClick={() => setColor(c.value)}
+                    className={"h-10 flex-1 rounded-full text-[11px] font-medium transition " +
+                      (color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : "opacity-80")}
+                    style={{ backgroundColor: c.value + "22", color: c.value }}>
+                    {c.label}
+                  </button>
+                ))}
+                <label
+                  className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
+                  title="Colore personalizzato"
+                >
+                  <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
+                  <span>Custom</span>
+                  <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="sr-only" />
+                </label>
+              </div>
+            </label>
+          )}
 
           {/* Visibility — the critical control */}
           <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-3">
