@@ -1,5 +1,5 @@
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { Users, User as UserIcon } from "lucide-react";
+import { Users, User as UserIcon, CalendarDays } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +14,11 @@ type Props = {
   /** Optional title shown in the header. */
   subtitle?: string;
   right?: React.ReactNode;
+  /** Which bottom tab is active; also controls the header top-right icon. */
+  variant?: "user" | "amici";
 };
 
-export function AppShell({ children, subtitle, right }: Props) {
+export function AppShell({ children, subtitle, right, variant = "user" }: Props) {
   const ctx = useRouteContext({ from: "/_authenticated" });
   const userId = ctx.user.id;
 
