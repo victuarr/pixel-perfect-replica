@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X, Sparkles, Trash2, Loader2, Globe2, Lock, Users, Clock, LogOut } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { amiciStore } from "@/lib/amici-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
