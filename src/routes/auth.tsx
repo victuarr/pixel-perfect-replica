@@ -173,7 +173,7 @@ function AuthPage() {
                     <span className="text-muted-foreground">Password</span>
                     <input
                       type="password"
-                      autoComplete={mode === "signup" ? "new-password" : "current-password"
+                      autoComplete={mode === "signup" ? "new-password" : "current-password"}
                       required
                       minLength={8}
                       value={password}
