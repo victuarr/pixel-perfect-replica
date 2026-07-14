@@ -119,7 +119,7 @@ function ListePage() {
               maxLength={60}
               className="h-11 rounded-xl border border-input bg-background/50 px-3 text-base outline-none focus:border-ring"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {CATEGORY_COLORS.map((c) => (
                 <button
                   key={c.value}
@@ -134,6 +134,14 @@ function ListePage() {
                   {c.label}
                 </button>
               ))}
+              <label
+                className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
+                title="Colore personalizzato"
+              >
+                <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
+                <span>Custom</span>
+                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="sr-only" />
+              </label>
             </div>
             <div className="flex gap-2">
               <button

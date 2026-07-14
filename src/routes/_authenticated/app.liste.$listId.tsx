@@ -156,7 +156,7 @@ function ListDetailPage() {
           </label>
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground">Colore</span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {CATEGORY_COLORS.map((c) => (
                 <button
                   key={c.value}
@@ -171,6 +171,19 @@ function ListDetailPage() {
                   {c.label}
                 </button>
               ))}
+              <label
+                className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
+                title="Colore personalizzato"
+              >
+                <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: list.color }} />
+                <span>Custom</span>
+                <input
+                  type="color"
+                  value={list.color}
+                  onChange={(e) => rename.mutate({ color: e.target.value })}
+                  className="sr-only"
+                />
+              </label>
             </div>
           </div>
         </div>
