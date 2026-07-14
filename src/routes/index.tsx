@@ -86,10 +86,7 @@ function Landing() {
             </p>
           </div>
 
-          <h1 className="mt-8 font-display text-[40px] font-700 leading-[1.04] tracking-tight text-foreground">
-            Laviniard
-          </h1>
-          <p className="mt-4 max-w-sm text-base leading-relaxed text-muted-foreground">
+          <p className="mt-8 max-w-sm text-base leading-relaxed text-muted-foreground">
             Il calendario personale che diventa social: segna i tuoi impegni e scegli chi può vederli.
           </p>
 
