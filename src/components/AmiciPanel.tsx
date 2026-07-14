@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,16 +12,11 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
 import { ReceivedInvites } from "@/components/ReceivedInvites";
 import { ForeignEventDetail } from "@/components/calendar/ForeignEventDetail";
 import { GoingCount } from "@/components/calendar/GoingCount";
 import { formatItalianDate, formatTime } from "@/lib/date-utils";
 import type { AgendaEvent } from "@/components/calendar/types";
-
-export const Route = createFileRoute("/_authenticated/app/amici")({
-  component: AmiciPage,
-});
 
 type Profile = {
   id: string;
@@ -42,8 +36,8 @@ type FollowRow = {
 
 type Tab = "feed" | "persone";
 
-function AmiciPage() {
-  const { user } = Route.useRouteContext();
+export function AmiciPanel({ userId }: { userId: string }) {
+  const user = { id: userId };
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("persone");
   const [openEvent, setOpenEvent] = useState<AgendaEvent | null>(null);
