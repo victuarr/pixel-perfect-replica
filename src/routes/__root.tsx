@@ -90,10 +90,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Segna i tuoi impegni e scegli chi può vederli. Il futuro, condiviso — un impegno alla volta.",
+          "Laviniard è il calendario personale che diventa social: segna i tuoi impegni e scegli chi può vederli. Il futuro, condiviso.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Laviniard — il calendario che condividi" },
+      { name: "twitter:description", content: "Laviniard è il calendario personale che diventa social: segna i tuoi impegni e scegli chi può vederli. Il futuro, condiviso." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c35b5540-5b57-4557-9f9b-45de34b1dd01/id-preview-dc6b4df7--669161e5-e1a1-453b-b447-14c7c99938f5.lovable.app-1784037672248.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c35b5540-5b57-4557-9f9b-45de34b1dd01/id-preview-dc6b4df7--669161e5-e1a1-453b-b447-14c7c99938f5.lovable.app-1784037672248.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
