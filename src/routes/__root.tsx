@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#E7E2F0" },
-      { title: "Agenda — il calendario che condividi" },
+      { title: "Laviniard — il calendario che condividi" },
       {
         name: "description",
         content:
-          "Agenda è il calendario personale che diventa social: segna i tuoi impegni e scegli chi può vederli. Il futuro, condiviso.",
+          "Laviniard è il calendario personale che diventa social: segna i tuoi impegni e scegli chi può vederli. Il futuro, condiviso.",
       },
-      { property: "og:title", content: "Agenda — il calendario che condividi" },
+      { property: "og:title", content: "Laviniard — il calendario che condividi" },
       {
         property: "og:description",
         content:
