@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, Check, UserPlus, CalendarPlus, CalendarCheck, Clock, MessageCircle, Smile } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useNotifications, type NotificationWithActor } from "@/hooks/useNotifications";
+import { amiciStore } from "@/lib/amici-store";
 
 const ITALIAN_TYPE: Record<NotificationWithActor["type"], string> = {
   follow_request: "ti ha inviato una richiesta di amicizia",
@@ -31,7 +32,7 @@ export function NotificationsBell({ userId }: { userId: string }) {
   function handleClick(n: NotificationWithActor) {
     if (!n.read_at) markOneRead.mutate(n.id);
     if (n.type === "follow_request" || n.type === "follow_accepted") {
-      navigate({ to: "/app/amici" });
+      amiciStore.open();
     } else if (n.type === "event_invite" || n.type === "event_rsvp") {
       navigate({ to: "/app" });
     }

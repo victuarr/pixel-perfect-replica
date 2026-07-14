@@ -1,9 +1,13 @@
-import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { CalendarDays, Users, User as UserIcon } from "lucide-react";
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { Users, User as UserIcon } from "lucide-react";
+import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatItalianDate } from "@/lib/date-utils";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AmiciPanel } from "@/components/AmiciPanel";
+import { amiciStore } from "@/lib/amici-store";
 
 type Props = {
   children: React.ReactNode;
@@ -30,9 +34,12 @@ export function AppShell({ children, subtitle, right }: Props) {
     staleTime: 60_000,
   });
 
-  const username = profile?.username ?? "";
-  const location = useLocation();
-  const path = location.pathname;
+  const _username = profile?.username ?? "";
+  const amiciOpen = useSyncExternalStore(
+    amiciStore.subscribe,
+    amiciStore.getSnapshot,
+    () => false,
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -49,6 +56,14 @@ export function AppShell({ children, subtitle, right }: Props) {
           <div className="flex items-center gap-2">
             {right}
             <NotificationsBell userId={userId} />
+            <button
+              type="button"
+              onClick={() => amiciStore.open()}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+              aria-label="Amici"
+            >
+              <Users className="h-4 w-4" />
+            </button>
             <Link
               to="/app/profilo"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
@@ -60,49 +75,16 @@ export function AppShell({ children, subtitle, right }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-md px-5 pb-28 pt-5">{children}</main>
+      <main className="mx-auto w-full max-w-md px-5 pb-10 pt-5">{children}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur">
-        <div className="mx-auto grid w-full max-w-md grid-cols-2">
-          <TabLink
-            to="/app"
-            active={path === "/app"}
-            icon={<CalendarDays className="h-5 w-5" />}
-            label={`@${username || "…"}`}
-          />
-          <TabLink
-            to="/app/amici"
-            active={path.startsWith("/app/amici")}
-            icon={<Users className="h-5 w-5" />}
-            label="Amici"
-          />
-        </div>
-      </nav>
+      <Sheet open={amiciOpen} onOpenChange={(v) => amiciStore.set(v)}>
+        <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-5 sm:max-w-md">
+          <SheetHeader className="mb-4 text-left">
+            <SheetTitle className="font-display text-lg font-700">Amici</SheetTitle>
+          </SheetHeader>
+          <AmiciPanel userId={userId} />
+        </SheetContent>
+      </Sheet>
     </div>
-  );
-}
-
-function TabLink({
-  to,
-  active,
-  icon,
-  label,
-}: {
-  to: string;
-  active: boolean;
-  icon: React.ReactNode;
-  label: React.ReactNode;
-}) {
-  return (
-    <Link
-      to={to}
-      className={
-        "flex flex-col items-center gap-0.5 py-3 text-[11px] font-medium transition-colors " +
-        (active ? "text-foreground" : "text-muted-foreground")
-      }
-    >
-      <span className={active ? "text-foreground" : ""}>{icon}</span>
-      <span className="max-w-[80px] truncate">{label}</span>
-    </Link>
   );
 }
