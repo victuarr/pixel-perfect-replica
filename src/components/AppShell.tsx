@@ -40,7 +40,7 @@ export function AppShell({ children, subtitle, right }: Props) {
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-5 py-3">
           <div className="min-w-0">
             <p className="truncate font-display text-lg font-700 leading-tight">
-              {subtitle ?? "Calendario"}
+              {subtitle ?? "Laviniard"}
             </p>
             <p className="truncate text-[11px] font-medium text-muted-foreground">
               {formatItalianDate(new Date())}
