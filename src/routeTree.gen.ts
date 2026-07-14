@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppProfiloRouteImport } from './routes/_authenticated/app.profilo'
 import { Route as AuthenticatedAppListeRouteImport } from './routes/_authenticated/app.liste'
+import { Route as AuthenticatedAppAmiciRouteImport } from './routes/_authenticated/app.amici'
 import { Route as ApiPublicHooksSendRemindersRouteImport } from './routes/api/public/hooks/send-reminders'
 import { Route as AuthenticatedAppListeListIdRouteImport } from './routes/_authenticated/app.liste.$listId'
 
@@ -47,6 +48,11 @@ const AuthenticatedAppListeRoute = AuthenticatedAppListeRouteImport.update({
   path: '/app/liste',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppAmiciRoute = AuthenticatedAppAmiciRouteImport.update({
+  id: '/app/amici',
+  path: '/app/amici',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicHooksSendRemindersRoute =
   ApiPublicHooksSendRemindersRouteImport.update({
     id: '/api/public/hooks/send-reminders',
@@ -63,6 +69,7 @@ const AuthenticatedAppListeListIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/app/amici': typeof AuthenticatedAppAmiciRoute
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/app/amici': typeof AuthenticatedAppAmiciRoute
   '/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/app/amici': typeof AuthenticatedAppAmiciRoute
   '/_authenticated/app/liste': typeof AuthenticatedAppListeRouteWithChildren
   '/_authenticated/app/profilo': typeof AuthenticatedAppProfiloRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/app/amici'
     | '/app/liste'
     | '/app/profilo'
     | '/app/'
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/app/amici'
     | '/app/liste'
     | '/app/profilo'
     | '/app'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/app/amici'
     | '/_authenticated/app/liste'
     | '/_authenticated/app/profilo'
     | '/_authenticated/app/'
@@ -171,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppListeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/amici': {
+      id: '/_authenticated/app/amici'
+      path: '/app/amici'
+      fullPath: '/app/amici'
+      preLoaderRoute: typeof AuthenticatedAppAmiciRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/hooks/send-reminders': {
       id: '/api/public/hooks/send-reminders'
       path: '/api/public/hooks/send-reminders'
@@ -202,12 +221,14 @@ const AuthenticatedAppListeRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppAmiciRoute: typeof AuthenticatedAppAmiciRoute
   AuthenticatedAppListeRoute: typeof AuthenticatedAppListeRouteWithChildren
   AuthenticatedAppProfiloRoute: typeof AuthenticatedAppProfiloRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppAmiciRoute: AuthenticatedAppAmiciRoute,
   AuthenticatedAppListeRoute: AuthenticatedAppListeRouteWithChildren,
   AuthenticatedAppProfiloRoute: AuthenticatedAppProfiloRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
