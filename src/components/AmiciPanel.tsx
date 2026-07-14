@@ -101,7 +101,7 @@ export function AmiciPanel({ userId }: { userId: string }) {
   });
 
   return (
-    <AppShell subtitle="Amici">
+    <div>
       <div className="mb-4 grid grid-cols-2 rounded-full border border-border bg-card p-1 text-xs">
         <TabButton active={tab === "feed"} onClick={() => setTab("feed")}>
           Feed
@@ -147,7 +147,7 @@ export function AmiciPanel({ userId }: { userId: string }) {
           onClose={() => setOpenEvent(null)}
         />
       )}
-    </AppShell>
+    </div>
   );
 }
 
