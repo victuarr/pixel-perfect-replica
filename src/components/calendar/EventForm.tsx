@@ -110,7 +110,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setTitle(editing.title);
       setIcon(editing.icon ?? "🗓️");
       setPlace(editing.place ?? "");
-      setDate(toInputDate(s));
+      setStartDate(toInputDate(s));
+      setEndDate(toInputDate(en ?? s));
       setStartTime(toInputTime(s));
       setEndTime(en ? toInputTime(en) : "");
       setDescription(editing.description ?? "");
@@ -129,7 +130,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setTitle("");
       setIcon("🗓️");
       setPlace("");
-      setDate(toInputDate(defaultStart ?? base));
+      setStartDate(toInputDate(defaultStart ?? base));
+      setEndDate(toInputDate(defaultStart ?? base));
       setStartTime(toInputTime(startBase));
       setEndTime(toInputTime(addHours(startBase, 1)));
       setDescription("");
