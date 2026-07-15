@@ -5,7 +5,7 @@ import { amiciStore } from "@/lib/amici-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CATEGORY_COLORS, type AgendaEvent } from "./types";
+import { DEFAULT_EVENT_COLOR, type AgendaEvent } from "./types";
 import { parseNL } from "@/lib/nl-parse";
 import { toLocalISOString } from "@/lib/date-utils";
 import { supabaseErrorMessage } from "@/lib/error-message";
