@@ -23,14 +23,19 @@ export function MonthView({ cursor, events, onSelectDay }: Props) {
   const gridStart = addDays(first, -leading);
   const today = new Date();
 
-  // Group events by yyyy-mm-dd (local)
+  // Group events into every local day they overlap.
   const byDay = new Map<string, AgendaEvent[]>();
   for (const e of events) {
-    const d = new Date(e.starts_at);
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    const arr = byDay.get(key) ?? [];
-    arr.push(e);
-    byDay.set(key, arr);
+    const s = new Date(e.starts_at);
+    const en = e.ends_at ? new Date(e.ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
+    const cur = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+    while (cur < en) {
+      const key = `${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`;
+      const arr = byDay.get(key) ?? [];
+      arr.push(e);
+      byDay.set(key, arr);
+      cur.setDate(cur.getDate() + 1);
+    }
   }
 
   return (

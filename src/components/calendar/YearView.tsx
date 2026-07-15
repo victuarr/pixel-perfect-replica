@@ -18,12 +18,16 @@ export function YearView({ cursor, events, onSelectMonth }: Props) {
   const year = cursor.getFullYear();
   const today = new Date();
 
-  const eventDays = new Set(
-    events.map((e) => {
-      const d = new Date(e.starts_at);
-      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    })
-  );
+  const eventDays = new Set<string>();
+  for (const e of events) {
+    const s = new Date(e.starts_at);
+    const en = e.ends_at ? new Date(e.ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
+    const cur = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+    while (cur < en) {
+      eventDays.add(`${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`);
+      cur.setDate(cur.getDate() + 1);
+    }
+  }
 
   return (
     <div className="grid grid-cols-3 gap-3">

@@ -45,7 +45,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
   const [place, setPlace] = useState("");
   const now = new Date();
   const initialStart = defaultStart ?? now;
-  const [date, setDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
+  const [startDate, setStartDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
+  const [endDate, setEndDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
   const [startTime, setStartTime] = useState(toInputTime(initialStart));
   const [endTime, setEndTime] = useState(toInputTime(addHours(initialStart, 1)));
   const [description, setDescription] = useState("");
@@ -109,7 +110,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setTitle(editing.title);
       setIcon(editing.icon ?? "🗓️");
       setPlace(editing.place ?? "");
-      setDate(toInputDate(s));
+      setStartDate(toInputDate(s));
+      setEndDate(toInputDate(en ?? s));
       setStartTime(toInputTime(s));
       setEndTime(en ? toInputTime(en) : "");
       setDescription(editing.description ?? "");
@@ -128,7 +130,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setTitle("");
       setIcon("🗓️");
       setPlace("");
-      setDate(toInputDate(defaultStart ?? base));
+      setStartDate(toInputDate(defaultStart ?? base));
+      setEndDate(toInputDate(defaultStart ?? base));
       setStartTime(toInputTime(startBase));
       setEndTime(toInputTime(addHours(startBase, 1)));
       setDescription("");
@@ -151,7 +154,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
     if (r.title) setTitle(r.title);
     if (r.place) setPlace(r.place);
     if (r.when) {
-      setDate(toInputDate(r.when));
+      setStartDate(toInputDate(r.when));
+      setEndDate(toInputDate(r.when));
       setStartTime(toInputTime(r.when));
       setEndTime(toInputTime(addHours(r.when, 1)));
     }
@@ -187,8 +191,18 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       if (visibility === "lists" && selectedLists.size === 0) {
         throw new Error("Scegli almeno una lista o cambia la visibilità");
       }
-      const starts = new Date(`${date}T${startTime}:00`);
-      const ends = endTime ? new Date(`${date}T${endTime}:00`) : null;
+      const starts = new Date(`${startDate}T${startTime}:00`);
+      let effectiveEndDate = endDate || startDate;
+      // If end time is before start time on the same date, roll end date to next day.
+      if (endTime && effectiveEndDate === startDate && endTime <= startTime) {
+        const d = new Date(`${startDate}T00:00:00`);
+        d.setDate(d.getDate() + 1);
+        effectiveEndDate = toInputDate(d);
+      }
+      const ends = endTime ? new Date(`${effectiveEndDate}T${endTime}:00`) : null;
+      if (ends && ends <= starts) {
+        throw new Error("La fine deve essere successiva all'inizio");
+      }
       const payload = {
         owner_id: userId,
         title: title.trim(),
@@ -367,23 +381,48 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
             }
           />
 
-          <div className="grid grid-cols-3 gap-2">
-            <label className="col-span-3 flex flex-col gap-1 sm:col-span-1">
-              <span className="text-xs text-muted-foreground">Data</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required
-                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Data inizio</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setStartDate(v);
+                  // Keep endDate in sync if it was equal (or earlier) — user can still change it.
+                  if (!endDate || endDate < v) setEndDate(v);
+                }}
+                required
+                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+              />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Inizio</span>
+              <span className="text-xs text-muted-foreground">Ora inizio</span>
               <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
                 className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Fine</span>
+              <span className="text-xs text-muted-foreground">Data fine</span>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Ora fine</span>
               <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
                 className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
             </label>
           </div>
+          {endTime && endDate === startDate && endTime <= startTime && (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              L'ora di fine è precedente all'inizio: la fine verrà spostata al giorno successivo.
+            </p>
+          )}
 
           {visibility === "lists" ? (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">

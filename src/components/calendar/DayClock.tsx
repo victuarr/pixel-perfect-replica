@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { AgendaEvent } from "./types";
 import { isSameDay } from "@/lib/date-utils";
 
@@ -62,8 +62,10 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
     .map((e) => {
       const s = new Date(e.starts_at);
       const en = e.ends_at ? new Date(e.ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
-      const sClip = s < dayStart ? dayStart : s;
-      const eClip = en > dayEnd ? dayEnd : en;
+      const continuesBefore = s < dayStart;
+      const continuesAfter = en > dayEnd;
+      const sClip = continuesBefore ? dayStart : s;
+      const eClip = continuesAfter ? dayEnd : en;
       const hs = (sClip.getTime() - dayStart.getTime()) / 3.6e6;
       const he = (eClip.getTime() - dayStart.getTime()) / 3.6e6;
       if (he <= hs) return null;
@@ -75,10 +77,13 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
         icon: e.icon,
         hs,
         he: Math.min(24, hs + spanned),
+        continuesBefore,
+        continuesAfter,
       };
     })
     .filter(Boolean) as {
-      id: string; title: string; color: string; icon: string | null; hs: number; he: number;
+      id: string; title: string; color: string; icon: string | null;
+      hs: number; he: number; continuesBefore: boolean; continuesAfter: boolean;
     }[];
 
   const showHand = isSameDay(now, date);
@@ -100,21 +105,38 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
       />
 
       {/* Event slices */}
-      {slices.map((s) => (
-        <g
-          key={s.id}
-          onClick={() => onEventTap?.(s.id)}
-          style={{ cursor: onEventTap ? "pointer" : undefined }}
-        >
-          <path
-            d={slicePath(s.hs, s.he)}
-            fill={s.color}
-            stroke="var(--color-card)"
-            strokeWidth="1.5"
-            opacity="0.9"
-          />
-        </g>
-      ))}
+      {slices.map((s) => {
+        // Continuation marker: small dot on the outer ring at the clipped boundary.
+        const markers: React.ReactNode[] = [];
+        if (s.continuesBefore) {
+          const [mx, my] = polar(hourToAngle(s.hs), R_OUTER + 4);
+          markers.push(
+            <circle key="cb" cx={mx} cy={my} r="2.4" fill={s.color} stroke="var(--color-card)" strokeWidth="1" />
+          );
+        }
+        if (s.continuesAfter) {
+          const [mx, my] = polar(hourToAngle(s.he), R_OUTER + 4);
+          markers.push(
+            <circle key="ca" cx={mx} cy={my} r="2.4" fill={s.color} stroke="var(--color-card)" strokeWidth="1" />
+          );
+        }
+        return (
+          <g
+            key={s.id}
+            onClick={() => onEventTap?.(s.id)}
+            style={{ cursor: onEventTap ? "pointer" : undefined }}
+          >
+            <path
+              d={slicePath(s.hs, s.he)}
+              fill={s.color}
+              stroke="var(--color-card)"
+              strokeWidth="1.5"
+              opacity="0.9"
+            />
+            {markers}
+          </g>
+        );
+      })}
 
 
       {/* Hour ticks and clickable labels for all 24 hours */}
