@@ -168,14 +168,23 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
     setSelectedLists((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
-      else {
-        next.add(id);
-        const l = lists.find((x) => x.id === id);
-        if (l?.color) setColor(l.color);
-      }
+      else next.add(id);
       return next;
     });
   }
+
+  // Il colore dell'evento è sempre derivato dalla lista.
+  useEffect(() => {
+    if (visibility === "lists" && selectedLists.size > 0) {
+      // Prima lista (in ordine di creazione) tra quelle selezionate.
+      const first = lists.find((l) => selectedLists.has(l.id));
+      if (first?.color) {
+        setColor(first.color);
+        return;
+      }
+    }
+    setColor(DEFAULT_EVENT_COLOR);
+  }, [visibility, selectedLists, lists]);
 
   function toggleInvitee(id: string) {
     setInvitees((prev) => {
