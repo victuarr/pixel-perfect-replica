@@ -50,7 +50,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
   const [startTime, setStartTime] = useState(toInputTime(initialStart));
   const [endTime, setEndTime] = useState(toInputTime(addHours(initialStart, 1)));
   const [description, setDescription] = useState("");
-  const [color, setColor] = useState(CATEGORY_COLORS[0].value);
+  const [color, setColor] = useState<string>(DEFAULT_EVENT_COLOR);
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [selectedLists, setSelectedLists] = useState<Set<string>>(new Set());
   const [invitees, setInvitees] = useState<Set<string>>(new Set());
