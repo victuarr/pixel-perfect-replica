@@ -154,7 +154,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
     if (r.title) setTitle(r.title);
     if (r.place) setPlace(r.place);
     if (r.when) {
-      setDate(toInputDate(r.when));
+      setStartDate(toInputDate(r.when));
+      setEndDate(toInputDate(r.when));
       setStartTime(toInputTime(r.when));
       setEndTime(toInputTime(addHours(r.when, 1)));
     }
