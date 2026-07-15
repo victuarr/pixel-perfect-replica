@@ -135,7 +135,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setStartTime(toInputTime(startBase));
       setEndTime(toInputTime(addHours(startBase, 1)));
       setDescription("");
-      setColor(CATEGORY_COLORS[0].value);
+      setColor(DEFAULT_EVENT_COLOR);
       // Preselect default from profile
       if (profile?.default_visibility_list_id) {
         setVisibility("lists");
