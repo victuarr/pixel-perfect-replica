@@ -62,8 +62,10 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
     .map((e) => {
       const s = new Date(e.starts_at);
       const en = e.ends_at ? new Date(e.ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
-      const sClip = s < dayStart ? dayStart : s;
-      const eClip = en > dayEnd ? dayEnd : en;
+      const continuesBefore = s < dayStart;
+      const continuesAfter = en > dayEnd;
+      const sClip = continuesBefore ? dayStart : s;
+      const eClip = continuesAfter ? dayEnd : en;
       const hs = (sClip.getTime() - dayStart.getTime()) / 3.6e6;
       const he = (eClip.getTime() - dayStart.getTime()) / 3.6e6;
       if (he <= hs) return null;
@@ -75,10 +77,13 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
         icon: e.icon,
         hs,
         he: Math.min(24, hs + spanned),
+        continuesBefore,
+        continuesAfter,
       };
     })
     .filter(Boolean) as {
-      id: string; title: string; color: string; icon: string | null; hs: number; he: number;
+      id: string; title: string; color: string; icon: string | null;
+      hs: number; he: number; continuesBefore: boolean; continuesAfter: boolean;
     }[];
 
   const showHand = isSameDay(now, date);
