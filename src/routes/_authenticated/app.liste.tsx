@@ -119,30 +119,25 @@ function ListePage() {
               maxLength={60}
               className="h-11 rounded-xl border border-input bg-background/50 px-3 text-base outline-none focus:border-ring"
             />
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onClick={() => setColor(c.value)}
-                  className={
-                    "h-10 flex-1 rounded-full text-[11px] font-medium transition " +
-                    (color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : "opacity-80")
-                  }
-                  style={{ backgroundColor: c.value + "22", color: c.value }}
-                >
-                  {c.label}
-                </button>
-              ))}
-              <label
-                className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
-                title="Colore personalizzato"
-              >
-                <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
-                <span>Custom</span>
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="sr-only" />
-              </label>
-            </div>
+            <label className="flex items-center gap-3 rounded-xl border border-border bg-background/60 p-3">
+              <span
+                className="h-10 w-10 shrink-0 rounded-full border border-border"
+                style={{ backgroundColor: color }}
+              />
+              <span className="flex flex-1 flex-col">
+                <span className="text-sm font-medium">Colore della lista</span>
+                <span className="text-[11px] text-muted-foreground">
+                  Tocca per scegliere un colore libero. Sarà usato per gli eventi condivisi con questa lista.
+                </span>
+              </span>
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="h-10 w-12 cursor-pointer rounded-lg border border-border bg-transparent"
+                aria-label="Scegli colore lista"
+              />
+            </label>
             <div className="flex gap-2">
               <button
                 type="button"
