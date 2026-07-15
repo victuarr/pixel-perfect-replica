@@ -21,11 +21,16 @@ export function WeekView({ cursor, events, onSelectDay, onEventTap }: Props) {
 
   const byDay = new Map<number, AgendaEvent[]>();
   for (const e of events) {
-    const d = new Date(e.starts_at);
-    const dayKey = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    const arr = byDay.get(dayKey) ?? [];
-    arr.push(e);
-    byDay.set(dayKey, arr);
+    const s = new Date(e.starts_at);
+    const en = e.ends_at ? new Date(e.ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
+    const cur = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+    while (cur < en) {
+      const key = cur.getTime();
+      const arr = byDay.get(key) ?? [];
+      arr.push(e);
+      byDay.set(key, arr);
+      cur.setDate(cur.getDate() + 1);
+    }
   }
 
   return (
