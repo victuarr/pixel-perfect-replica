@@ -24,7 +24,7 @@ function ListePage() {
   const qc = useQueryClient();
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
-  const [color, setColor] = useState(CATEGORY_COLORS[1].value);
+  const [color, setColor] = useState<string>(DEFAULT_EVENT_COLOR);
 
   const { data: lists = [], isLoading } = useQuery({
     queryKey: ["lists-with-counts", user.id],
