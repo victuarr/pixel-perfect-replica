@@ -191,8 +191,18 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       if (visibility === "lists" && selectedLists.size === 0) {
         throw new Error("Scegli almeno una lista o cambia la visibilità");
       }
-      const starts = new Date(`${date}T${startTime}:00`);
-      const ends = endTime ? new Date(`${date}T${endTime}:00`) : null;
+      const starts = new Date(`${startDate}T${startTime}:00`);
+      let effectiveEndDate = endDate || startDate;
+      // If end time is before start time on the same date, roll end date to next day.
+      if (endTime && effectiveEndDate === startDate && endTime <= startTime) {
+        const d = new Date(`${startDate}T00:00:00`);
+        d.setDate(d.getDate() + 1);
+        effectiveEndDate = toInputDate(d);
+      }
+      const ends = endTime ? new Date(`${effectiveEndDate}T${endTime}:00`) : null;
+      if (ends && ends <= starts) {
+        throw new Error("La fine deve essere successiva all'inizio");
+      }
       const payload = {
         owner_id: userId,
         title: title.trim(),
