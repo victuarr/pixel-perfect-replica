@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, Trash2, UserPlus, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { CATEGORY_COLORS } from "@/components/calendar/types";
+
 
 export const Route = createFileRoute("/_authenticated/app/liste/$listId")({
   component: ListDetailPage,
@@ -154,38 +154,25 @@ function ListDetailPage() {
               className="h-11 rounded-xl border border-input bg-background/50 px-3 text-base outline-none focus:border-ring"
             />
           </label>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Colore</span>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onClick={() => rename.mutate({ color: c.value })}
-                  className={
-                    "h-10 flex-1 rounded-full text-[11px] font-medium transition " +
-                    (list.color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : "opacity-80")
-                  }
-                  style={{ backgroundColor: c.value + "22", color: c.value }}
-                >
-                  {c.label}
-                </button>
-              ))}
-              <label
-                className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
-                title="Colore personalizzato"
-              >
-                <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: list.color }} />
-                <span>Custom</span>
-                <input
-                  type="color"
-                  value={list.color}
-                  onChange={(e) => rename.mutate({ color: e.target.value })}
-                  className="sr-only"
-                />
-              </label>
-            </div>
-          </div>
+          <label className="flex items-center gap-3 rounded-xl border border-border bg-background/60 p-3">
+            <span
+              className="h-10 w-10 shrink-0 rounded-full border border-border"
+              style={{ backgroundColor: list.color }}
+            />
+            <span className="flex flex-1 flex-col">
+              <span className="text-sm font-medium">Colore della lista</span>
+              <span className="text-[11px] text-muted-foreground">
+                Sarà usato per gli eventi condivisi con questa lista.
+              </span>
+            </span>
+            <input
+              type="color"
+              value={list.color}
+              onChange={(e) => rename.mutate({ color: e.target.value })}
+              className="h-10 w-12 cursor-pointer rounded-lg border border-border bg-transparent"
+              aria-label="Scegli colore lista"
+            />
+          </label>
         </div>
 
         {/* Members */}

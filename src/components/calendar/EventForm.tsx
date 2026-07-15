@@ -5,7 +5,7 @@ import { amiciStore } from "@/lib/amici-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CATEGORY_COLORS, type AgendaEvent } from "./types";
+import { DEFAULT_EVENT_COLOR, type AgendaEvent } from "./types";
 import { parseNL } from "@/lib/nl-parse";
 import { toLocalISOString } from "@/lib/date-utils";
 import { supabaseErrorMessage } from "@/lib/error-message";
@@ -50,7 +50,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
   const [startTime, setStartTime] = useState(toInputTime(initialStart));
   const [endTime, setEndTime] = useState(toInputTime(addHours(initialStart, 1)));
   const [description, setDescription] = useState("");
-  const [color, setColor] = useState(CATEGORY_COLORS[0].value);
+  const [color, setColor] = useState<string>(DEFAULT_EVENT_COLOR);
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [selectedLists, setSelectedLists] = useState<Set<string>>(new Set());
   const [invitees, setInvitees] = useState<Set<string>>(new Set());
@@ -135,7 +135,7 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
       setStartTime(toInputTime(startBase));
       setEndTime(toInputTime(addHours(startBase, 1)));
       setDescription("");
-      setColor(CATEGORY_COLORS[0].value);
+      setColor(DEFAULT_EVENT_COLOR);
       // Preselect default from profile
       if (profile?.default_visibility_list_id) {
         setVisibility("lists");
@@ -168,14 +168,23 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
     setSelectedLists((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
-      else {
-        next.add(id);
-        const l = lists.find((x) => x.id === id);
-        if (l?.color) setColor(l.color);
-      }
+      else next.add(id);
       return next;
     });
   }
+
+  // Il colore dell'evento è sempre derivato dalla lista.
+  useEffect(() => {
+    if (visibility === "lists" && selectedLists.size > 0) {
+      // Prima lista (in ordine di creazione) tra quelle selezionate.
+      const first = lists.find((l) => selectedLists.has(l.id));
+      if (first?.color) {
+        setColor(first.color);
+        return;
+      }
+    }
+    setColor(DEFAULT_EVENT_COLOR);
+  }, [visibility, selectedLists, lists]);
 
   function toggleInvitee(id: string) {
     setInvitees((prev) => {
@@ -424,34 +433,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
             </p>
           )}
 
-          {visibility === "lists" ? (
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
-              <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
-              Il colore viene preso dalla lista selezionata.
-            </div>
-          ) : (
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Colore</span>
-              <div className="flex flex-wrap gap-2">
-                {CATEGORY_COLORS.map((c) => (
-                  <button key={c.value} type="button" onClick={() => setColor(c.value)}
-                    className={"h-10 flex-1 rounded-full text-[11px] font-medium transition " +
-                      (color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : "opacity-80")}
-                    style={{ backgroundColor: c.value + "22", color: c.value }}>
-                    {c.label}
-                  </button>
-                ))}
-                <label
-                  className="flex h-10 min-w-[80px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background/60 px-3 text-[11px] font-medium text-muted-foreground"
-                  title="Colore personalizzato"
-                >
-                  <span className="h-5 w-5 rounded-full border border-border" style={{ backgroundColor: color }} />
-                  <span>Custom</span>
-                  <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="sr-only" />
-                </label>
-              </div>
-            </label>
-          )}
+
+
 
           {/* Visibility — the critical control */}
           <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-3">
