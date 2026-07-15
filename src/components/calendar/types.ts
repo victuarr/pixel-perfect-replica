@@ -17,8 +17,5 @@ export type AgendaEvent = {
 
 export type CalendarView = "day" | "week" | "month" | "year";
 
-export const CATEGORY_COLORS = [
-  { label: "Lavoro", value: "#3B7BF0" },
-  { label: "Amici", value: "#12B48C" },
-  { label: "Personale", value: "#F59E3C" },
-];
+/** Colore neutro usato per eventi pubblici o privati senza lista. */
+export const DEFAULT_EVENT_COLOR = "#94A3B8";
