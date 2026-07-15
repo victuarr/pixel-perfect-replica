@@ -76,6 +76,20 @@ export function formatTime(d: Date): string {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+/** True if [starts_at, ends_at) overlaps the given local day. */
+export function eventOverlapsDay(
+  starts_at: string,
+  ends_at: string | null,
+  day: Date
+): boolean {
+  const s = new Date(starts_at);
+  const en = ends_at ? new Date(ends_at) : new Date(s.getTime() + 60 * 60 * 1000);
+  const dayStart = startOfDay(day);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+  return s < dayEnd && en > dayStart;
+}
+
 /** ISO string with local timezone offset (Supabase timestamptz-friendly). */
 export function toLocalISOString(d: Date): string {
   const tz = -d.getTimezoneOffset();
