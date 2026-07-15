@@ -63,7 +63,7 @@ type Slice = {
 
 /** Greedy interval-graph lane assignment. Returns lane index per slice id. */
 function assignLanes(slices: Slice[]): Map<string, number> {
-  const sorted = [...slices].sort((a, b) => a.hs - b.hs || b.he - b.he);
+  const sorted = [...slices].sort((a, b) => a.hs - b.hs || b.he - a.he);
   const laneEnds: number[] = []; // hs of "he" per lane (running end time)
   const laneOf = new Map<string, number>();
   for (const s of sorted) {
