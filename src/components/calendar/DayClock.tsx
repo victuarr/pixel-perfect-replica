@@ -105,21 +105,38 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
       />
 
       {/* Event slices */}
-      {slices.map((s) => (
-        <g
-          key={s.id}
-          onClick={() => onEventTap?.(s.id)}
-          style={{ cursor: onEventTap ? "pointer" : undefined }}
-        >
-          <path
-            d={slicePath(s.hs, s.he)}
-            fill={s.color}
-            stroke="var(--color-card)"
-            strokeWidth="1.5"
-            opacity="0.9"
-          />
-        </g>
-      ))}
+      {slices.map((s) => {
+        // Continuation marker: small dot on the outer ring at the clipped boundary.
+        const markers: JSX.Element[] = [];
+        if (s.continuesBefore) {
+          const [mx, my] = polar(hourToAngle(s.hs), R_OUTER + 4);
+          markers.push(
+            <circle key="cb" cx={mx} cy={my} r="2.4" fill={s.color} stroke="var(--color-card)" strokeWidth="1" />
+          );
+        }
+        if (s.continuesAfter) {
+          const [mx, my] = polar(hourToAngle(s.he), R_OUTER + 4);
+          markers.push(
+            <circle key="ca" cx={mx} cy={my} r="2.4" fill={s.color} stroke="var(--color-card)" strokeWidth="1" />
+          );
+        }
+        return (
+          <g
+            key={s.id}
+            onClick={() => onEventTap?.(s.id)}
+            style={{ cursor: onEventTap ? "pointer" : undefined }}
+          >
+            <path
+              d={slicePath(s.hs, s.he)}
+              fill={s.color}
+              stroke="var(--color-card)"
+              strokeWidth="1.5"
+              opacity="0.9"
+            />
+            {markers}
+          </g>
+        );
+      })}
 
 
       {/* Hour ticks and clickable labels for all 24 hours */}
