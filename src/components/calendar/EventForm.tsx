@@ -381,23 +381,48 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
             }
           />
 
-          <div className="grid grid-cols-3 gap-2">
-            <label className="col-span-3 flex flex-col gap-1 sm:col-span-1">
-              <span className="text-xs text-muted-foreground">Data</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required
-                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Data inizio</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setStartDate(v);
+                  // Keep endDate in sync if it was equal (or earlier) — user can still change it.
+                  if (!endDate || endDate < v) setEndDate(v);
+                }}
+                required
+                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+              />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Inizio</span>
+              <span className="text-xs text-muted-foreground">Ora inizio</span>
               <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
                 className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Fine</span>
+              <span className="text-xs text-muted-foreground">Data fine</span>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Ora fine</span>
               <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
                 className="h-11 rounded-xl border border-input bg-background/50 px-3 text-sm outline-none focus:border-ring" />
             </label>
           </div>
+          {endTime && endDate === startDate && endTime <= startTime && (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              L'ora di fine è precedente all'inizio: la fine verrà spostata al giorno successivo.
+            </p>
+          )}
 
           {visibility === "lists" ? (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
