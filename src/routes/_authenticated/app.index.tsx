@@ -24,6 +24,7 @@ import {
   addYears,
   endOfDay,
   eventOverlapsDay,
+  formatItalianDate,
   formatTime,
   startOfDay,
   startOfMonth,
