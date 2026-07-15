@@ -45,7 +45,8 @@ export function EventForm({ open, onClose, userId, editing, defaultDate, default
   const [place, setPlace] = useState("");
   const now = new Date();
   const initialStart = defaultStart ?? now;
-  const [date, setDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
+  const [startDate, setStartDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
+  const [endDate, setEndDate] = useState(toInputDate(defaultStart ?? defaultDate ?? now));
   const [startTime, setStartTime] = useState(toInputTime(initialStart));
   const [endTime, setEndTime] = useState(toInputTime(addHours(initialStart, 1)));
   const [description, setDescription] = useState("");
