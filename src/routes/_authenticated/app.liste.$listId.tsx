@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, Trash2, UserPlus, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { CATEGORY_COLORS } from "@/components/calendar/types";
+
 
 export const Route = createFileRoute("/_authenticated/app/liste/$listId")({
   component: ListDetailPage,
