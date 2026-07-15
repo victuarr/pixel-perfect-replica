@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { AgendaEvent } from "./types";
 import { isSameDay } from "@/lib/date-utils";
 
@@ -107,7 +107,7 @@ export function DayClock({ date, events, onEventTap, onHourTap }: Props) {
       {/* Event slices */}
       {slices.map((s) => {
         // Continuation marker: small dot on the outer ring at the clipped boundary.
-        const markers: JSX.Element[] = [];
+        const markers: React.ReactNode[] = [];
         if (s.continuesBefore) {
           const [mx, my] = polar(hourToAngle(s.hs), R_OUTER + 4);
           markers.push(
