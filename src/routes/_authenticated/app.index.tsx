@@ -106,7 +106,7 @@ function HomePage() {
 
   function periodLabel() {
     if (view === "day")
-      return `${selectedDay.getDate()} ${MESI[selectedDay.getMonth()]}`;
+      return formatItalianDate(selectedDay);
     if (view === "week") {
       const s = startOfWeek(cursor);
       const e = addDays(s, 6);
