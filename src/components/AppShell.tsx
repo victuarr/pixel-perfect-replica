@@ -45,7 +45,10 @@ export function AppShell({ children, subtitle, right, variant = "user" }: Props)
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-20 border-b border-border/50 bg-background/85 backdrop-blur">
+      <header
+        className="sticky top-0 z-20 border-b border-border/50 bg-background/85 backdrop-blur"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-5 py-3">
           <div className="min-w-0">
             <p className="truncate font-display text-lg font-700 leading-tight">
@@ -82,7 +85,10 @@ export function AppShell({ children, subtitle, right, variant = "user" }: Props)
 
       <main className="mx-auto w-full max-w-md px-5 pb-28 pt-5">{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur">
+      <nav
+        className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         <div className="mx-auto grid w-full max-w-md grid-cols-2">
           <Link
             to="/app"
