@@ -77,12 +77,13 @@ function HomePage() {
   const { data: events = [] } = useQuery({
     queryKey: ["events", user.id, view, from.toISOString(), to.toISOString()],
     queryFn: async () => {
+      // Overlap query: event.starts_at <= window.to AND (event.ends_at >= window.from OR ends_at IS NULL)
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .eq("owner_id", user.id)
-        .gte("starts_at", from.toISOString())
         .lte("starts_at", to.toISOString())
+        .or(`ends_at.gte.${from.toISOString()},ends_at.is.null`)
         .order("starts_at", { ascending: true });
       if (error) throw error;
       return (data ?? []) as AgendaEvent[];
@@ -90,7 +91,7 @@ function HomePage() {
   });
 
   const dayEvents = useMemo(
-    () => events.filter((e) => isSameDay(new Date(e.starts_at), selectedDay))
+    () => events.filter((e) => eventOverlapsDay(e.starts_at, e.ends_at, selectedDay))
       .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
     [events, selectedDay]
   );
